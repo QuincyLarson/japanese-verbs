@@ -38,3 +38,4 @@
 - 2026-04-15: Simplified the flash-card route by removing the Home nav item, renaming `Study` to `Flash cards`, deleting the extra study-page intro copy, and replacing the old sidebar filters with compact dropdown controls beneath the card.
 - 2026-04-15: Trimmed the index header down to a single search field and added romaji-aware verb search so queries like `yomu` match kana readings without adding a new dependency.
 - 2026-04-15: Removed the redundant revealed-answer summary tiles from the flash-card page so the answer view only shows the explanation list and grading controls.
+- 2026-04-15: Reworked the flash-card interaction to use typed reading input, collapsed grading to `I know it` and `I don't know it`, and added interval feedback after each review with lightweight hiragana/romaji answer matching.

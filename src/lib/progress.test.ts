@@ -1,4 +1,4 @@
-import { createEmptyProgressStore, recordGrade } from './progress';
+import { createEmptyProgressStore, previewGradeResult, recordGrade } from './progress';
 
 describe('recordGrade', () => {
   it('records a correct review and updates interval state', () => {
@@ -34,5 +34,14 @@ describe('recordGrade', () => {
     expect(progress.perFormFamily.dictionary?.wrong).toBe(1);
     expect(Date.parse(progress.dueAt)).toBeLessThanOrEqual(missAt.getTime() + 11 * 60 * 1000);
     expect(next.meta.currentStreak).toBe(0);
+  });
+
+  it('previews the next review timing for a known card', () => {
+    const now = new Date('2026-04-15T12:00:00.000Z');
+    const store = recordGrade(createEmptyProgressStore(), '食べる', 'dictionary', 'good', now);
+    const preview = previewGradeResult(store.items['食べる'], 'good', new Date('2026-04-17T12:00:00.000Z'));
+
+    expect(preview.intervalDays).toBeGreaterThanOrEqual(4);
+    expect(Date.parse(preview.dueAt)).toBeGreaterThan(Date.parse(store.items['食べる'].dueAt));
   });
 });

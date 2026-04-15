@@ -1,4 +1,4 @@
-import { kanaToRomaji, normalizeLatinSearch } from './romaji';
+import { kanaToRomaji, matchesReadingInput, normalizeLatinSearch, normalizeKanaText } from './romaji';
 import { searchVerbs } from './stats';
 import type { VerbEntry } from '../types/verb';
 
@@ -58,6 +58,14 @@ describe('kanaToRomaji', () => {
 
   it('normalizes latin input for romaji search', () => {
     expect(normalizeLatinSearch('Yo-mu')).toBe('yomu');
+  });
+
+  it('matches typed readings in hiragana, katakana, or romaji', () => {
+    expect(normalizeKanaText('ヨム')).toBe('よむ');
+    expect(matchesReadingInput('よむ', 'よむ')).toBe(true);
+    expect(matchesReadingInput('ヨム', 'よむ')).toBe(true);
+    expect(matchesReadingInput('yomu', 'よむ')).toBe(true);
+    expect(matchesReadingInput('taberu', 'よむ')).toBe(false);
   });
 });
 

@@ -124,7 +124,7 @@ const MONOGRAPH_MAP: Record<string, string> = {
   ゖ: 'ke',
 };
 
-function toHiragana(value: string) {
+export function toHiragana(value: string) {
   return value.replace(/[\u30a1-\u30f6]/g, (character) =>
     String.fromCharCode(character.charCodeAt(0) - 0x60),
   );
@@ -199,4 +199,24 @@ export function normalizeLatinSearch(value: string) {
     .normalize('NFKC')
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '');
+}
+
+export function normalizeKanaText(value: string) {
+  return toHiragana(value.normalize('NFKC')).replace(/[^ぁ-ゖ゙゚ー]/g, '');
+}
+
+export function matchesReadingInput(input: string, expectedReading: string) {
+  const normalizedExpectedKana = normalizeKanaText(expectedReading);
+  const normalizedInputKana = normalizeKanaText(input);
+
+  if (normalizedInputKana && normalizedInputKana === normalizedExpectedKana) {
+    return true;
+  }
+
+  const normalizedInputLatin = normalizeLatinSearch(input);
+  if (!normalizedInputLatin) {
+    return false;
+  }
+
+  return normalizedInputLatin === normalizeLatinSearch(kanaToRomaji(normalizedExpectedKana));
 }

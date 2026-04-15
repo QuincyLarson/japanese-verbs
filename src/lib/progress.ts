@@ -126,6 +126,19 @@ function getNextEase(progress: ReviewProgress, grade: Grade): number {
   return clamp(progress.ease + delta, 1.3, 3);
 }
 
+export function previewGradeResult(progress: ReviewProgress, grade: Grade, now = new Date()) {
+  const intervalDays = getNextIntervalDays(progress, grade);
+  const dueAt =
+    grade === 'again'
+      ? new Date(now.getTime() + 10 * MINUTE_MS).toISOString()
+      : new Date(now.getTime() + intervalDays * DAY_MS).toISOString();
+
+  return {
+    intervalDays,
+    dueAt,
+  };
+}
+
 export function recordGrade(
   store: ProgressStore,
   masteryKey: string,
@@ -136,11 +149,7 @@ export function recordGrade(
   const nowIso = now.toISOString();
   const current = getOrCreateProgress(store, masteryKey, nowIso);
   const isCorrect = grade !== 'again';
-  const intervalDays = getNextIntervalDays(current, grade);
-  const dueAt =
-    grade === 'again'
-      ? new Date(now.getTime() + 10 * MINUTE_MS).toISOString()
-      : new Date(now.getTime() + intervalDays * DAY_MS).toISOString();
+  const preview = previewGradeResult(current, grade, now);
   const formProgress = current.perFormFamily[formKey] ?? {
     correct: 0,
     wrong: 0,
@@ -157,8 +166,8 @@ export function recordGrade(
   };
   const nextProgress: ReviewProgress = {
     ...current,
-    dueAt,
-    intervalDays,
+    dueAt: preview.dueAt,
+    intervalDays: preview.intervalDays,
     ease: getNextEase(current, grade),
     streak: isCorrect ? current.streak + 1 : 0,
     lapses: current.lapses + (isCorrect ? 0 : 1),

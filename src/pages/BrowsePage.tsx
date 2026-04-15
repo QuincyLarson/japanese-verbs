@@ -59,23 +59,17 @@ export function BrowsePage() {
 
   return (
     <section className="page-stack">
-      <section className="panel stack">
-        <p className="eyebrow">Index</p>
-        <h2>All verbs</h2>
-        <p className="muted-text">
-          Search by Japanese form, reading, or English meaning. Hover or tap a cell to inspect the verb metadata.
-        </p>
-        <label className="field-stack">
-          <span className="label">Search</span>
-          <input
-            className="text-input"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="読む / よむ / read"
-            type="search"
-            value={query}
-          />
-        </label>
-        <p className="muted-text">Showing {results.length} results.</p>
+      <section className="panel">
+        <input
+          aria-label="Search verbs"
+          autoComplete="off"
+          className="text-input"
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="読む / よむ / yomu / read"
+          spellCheck={false}
+          type="search"
+          value={query}
+        />
       </section>
 
       <section className="index-screen stack-sm">

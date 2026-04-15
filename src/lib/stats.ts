@@ -1,5 +1,6 @@
 import { FORM_ORDER, FORM_PRESETS } from './dataset';
 import { getAccuracy, getWeaknessScore, hasRecentMistake, isBurned, isDue } from './progress';
+import { kanaToRomaji, normalizeLatinSearch } from './romaji';
 import type { ProgressStore } from '../types/study';
 import type { FormKey, VerbEntry } from '../types/verb';
 
@@ -157,21 +158,38 @@ export function listWeakestVerbs(verbs: VerbEntry[], progressStore: ProgressStor
 
 export function searchVerbs(verbs: VerbEntry[], query: string): VerbEntry[] {
   const trimmed = query.trim().toLowerCase();
+  const normalizedLatin = normalizeLatinSearch(query);
 
   if (!trimmed) {
     return verbs;
   }
 
   return verbs.filter((entry) => {
-    const haystacks = [
+    const directHaystacks = [
       entry.orthography,
       entry.reading,
       entry.englishPrimary,
       entry.englishGlosses.join(' '),
       entry.alternateSpellings.join(' '),
+      entry.sameSpellingOtherReadings.map((reading) => reading.reading).join(' '),
     ];
 
-    return haystacks.some((value) => value.toLowerCase().includes(trimmed));
+    if (directHaystacks.some((value) => value.toLowerCase().includes(trimmed))) {
+      return true;
+    }
+
+    if (!normalizedLatin) {
+      return false;
+    }
+
+    const romanizedHaystacks = [
+      entry.reading,
+      ...entry.sameSpellingOtherReadings.map((reading) => reading.reading),
+    ]
+      .map((value) => normalizeLatinSearch(kanaToRomaji(value)))
+      .filter(Boolean);
+
+    return romanizedHaystacks.some((value) => value.includes(normalizedLatin));
   });
 }
 

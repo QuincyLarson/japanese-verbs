@@ -67,7 +67,11 @@ export function SettingsPage() {
           ref={fileInputRef}
           type="file"
         />
-        {message ? <p className="muted-text">{message}</p> : null}
+        {message ? (
+          <p aria-live="polite" className="muted-text" role="status">
+            {message}
+          </p>
+        ) : null}
       </section>
 
       <section className="panel stack">

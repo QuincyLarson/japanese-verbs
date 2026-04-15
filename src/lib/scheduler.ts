@@ -129,9 +129,10 @@ function matchesDeckSlice(
 }
 
 function getVerbScore(entry: VerbEntry, progress: ReviewProgress, now: Date, formBias: number): number {
+  const isNew = isNewVerb(progress);
   const overdueDays = Math.max(0, (now.getTime() - Date.parse(progress.dueAt)) / (24 * 60 * 60 * 1000));
-  const dueBias = isDue(progress, now) ? 140 + overdueDays * 8 : 0;
-  const newBias = isNewVerb(progress) ? 40 : 0;
+  const dueBias = !isNew && isDue(progress, now) ? 140 + overdueDays * 8 : 0;
+  const newBias = isNew ? 40 : 0;
   const weakBias = getWeaknessScore(progress) * 45;
   const mistakeBias = hasRecentMistake(progress, now) ? 32 : 0;
   const rankBias = Math.max(0, 18 - entry.bccwjRank / 300);
@@ -180,9 +181,10 @@ export function createStudySnapshot(
 
     const selectedForm = forms[0];
     const verbScore = getVerbScore(entry, baseline, now, selectedForm.score);
+    const isNew = isNewVerb(progress);
     const reasons = [
-      isNewVerb(progress) ? 'new verb' : 'existing review',
-      isDue(baseline, now) ? 'due now' : 'scheduled later',
+      isNew ? 'new verb' : 'existing review',
+      isNew ? 'ready to introduce' : isDue(baseline, now) ? 'due now' : 'scheduled later',
       `focus form: ${selectedForm.formKey}`,
     ];
 

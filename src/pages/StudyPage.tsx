@@ -34,6 +34,7 @@ function FilterButtons<T extends string>({
       {options.map((option) => (
         <button
           key={option.id}
+          aria-pressed={selected === option.id}
           className={`filter-chip${selected === option.id ? ' is-active' : ''}`}
           onClick={() => onSelect(option.id)}
           type="button"
@@ -144,6 +145,7 @@ export function StudyPage() {
                 {FORM_ORDER.map((formKey) => (
                   <button
                     key={formKey}
+                    aria-pressed={activeForms.includes(formKey)}
                     className={`filter-chip${activeForms.includes(formKey) ? ' is-active' : ''}`}
                     onClick={() => toggleStudyForm(formKey)}
                     type="button"

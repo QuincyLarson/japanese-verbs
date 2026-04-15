@@ -9,7 +9,7 @@
 ## Milestones
 
 - [x] 1. Scaffold the app and toolchain
-- [ ] 2. Add design tokens and the overview home page
+- [x] 2. Add design tokens and the overview home page
 - [ ] 3. Implement local progress persistence
 - [ ] 4. Build the reusable lab shell and constrained workspace
 - [ ] 5. Implement the warm-up chapter end-to-end
@@ -25,3 +25,4 @@
 ## Session Log
 
 - 2026-04-15: Completed the Vite + React + TypeScript bootstrap, added a routed shell, installed dependencies, and verified `npm run build` and `npm run test:run`.
+- 2026-04-15: Added the block-style design system, active navigation, and a compact curriculum overview home route with study-track entry points.

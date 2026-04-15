@@ -57,16 +57,3 @@ export interface VerbEntry {
   inflectionNotes: string[];
   forms: Partial<Record<FormKey, SurfaceForm | null>>;
 }
-
-export interface ReviewProgress {
-  dueAt: string;
-  intervalDays: number;
-  ease: number;
-  streak: number;
-  lapses: number;
-  totalSeen: number;
-  totalCorrect: number;
-  perFormFamily: Partial<Record<FormKey, { correct: number; wrong: number; lastSeenAt?: string }>>;
-}
-
-export type ReviewStateMap = Record<string, ReviewProgress>;

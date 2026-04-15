@@ -5,24 +5,27 @@
 - `content/chapters/` is not present in this repository.
 - `docs/code-review.md` is not present in this repository and will be created during the review milestone.
 - Implementation is following the repo's actual product docs for the Japanese verb trainer.
+- The requested chapter-specific milestones were translated into product milestones because the repo contains verb-study docs and seed data rather than chapter outline content.
 
 ## Milestones
 
 - [x] 1. Scaffold the app and toolchain
 - [x] 2. Add design tokens and the overview home page
-- [ ] 3. Implement local progress persistence
-- [ ] 4. Build the reusable lab shell and constrained workspace
-- [ ] 5. Implement the warm-up chapter end-to-end
-- [ ] 6. Implement the binary search chapter end-to-end
-- [ ] 7. Scaffold the remaining chapter pages from the markdown outlines
-- [ ] 8. Add tests, accessibility improvements, and polish
-- [ ] 9. Run checks and self-review against `docs/code-review.md`
+- [x] 3. Implement local progress persistence
+- [x] 4. Build the reusable lab shell and constrained workspace
+- [x] 5. Implement the review flow, browse view, stats view, and settings controls
+- [x] 6. Scaffold the remaining product routes, including the annex placeholder
+- [ ] 7. Add more tests, accessibility improvements, and polish
+- [ ] 8. Run checks and self-review against `docs/code-review.md`
 
 ## Intended Commit Messages
 
 - `chore: bootstrap verb trainer app`
+- `feat: add overview home and design system`
+- `feat: add local progress and review workspace`
 
 ## Session Log
 
 - 2026-04-15: Completed the Vite + React + TypeScript bootstrap, added a routed shell, installed dependencies, and verified `npm run build` and `npm run test:run`.
 - 2026-04-15: Added the block-style design system, active navigation, and a compact curriculum overview home route with study-track entry points.
+- 2026-04-15: Implemented async catalog loading, localStorage-backed progress/settings, deterministic study scheduling, the reveal/self-grade loop, JSON import/export, browse, and stats routes.

@@ -1,18 +1,21 @@
 import { Link } from 'react-router-dom';
+import { useAppState } from '../app/AppState';
 import {
-  COMMON_TE_PATTERNS,
   CORE_FORM_KEYS,
+  DATASET_SUMMARY,
   DEFAULT_FORM_KEYS,
   DERIVED_FORM_KEYS,
   POLITE_FORM_KEYS,
+  TE_FORM_PATTERNS,
   VERB_COUNT,
 } from '../lib/dataset';
+import { calculateOverviewStats } from '../lib/stats';
 
 const QUICK_STATS = [
   { label: 'Seed verbs', value: `${VERB_COUNT}` },
   { label: 'Core families', value: `${CORE_FORM_KEYS.length}` },
   { label: 'Derived families', value: `${DERIVED_FORM_KEYS.length}` },
-  { label: 'て-form buckets', value: `${COMMON_TE_PATTERNS.length}` },
+  { label: 'て-form buckets', value: `${TE_FORM_PATTERNS.length}` },
 ];
 
 const TRACKS = [
@@ -31,7 +34,7 @@ const TRACKS = [
   {
     title: 'て-form focus',
     note: 'Sharpen the highest-value connective pattern with bucket-aware analytics.',
-    detail: `${COMMON_TE_PATTERNS.length} pattern buckets`,
+    detail: `${TE_FORM_PATTERNS.length} pattern buckets`,
     to: '/study?preset=te',
   },
   {
@@ -61,6 +64,10 @@ const PRINCIPLES = [
 ];
 
 export function OverviewPage() {
+  const { catalogStatus, progressStore, verbs } = useAppState();
+  const progressStats =
+    catalogStatus === 'ready' ? calculateOverviewStats(verbs, progressStore) : null;
+
   return (
     <section className="page-stack">
       <section className="panel stack">
@@ -79,6 +86,43 @@ export function OverviewPage() {
             <strong>{stat.value}</strong>
           </article>
         ))}
+      </section>
+
+      <section className="panel stack">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Progress state</p>
+            <h3>Local study status</h3>
+          </div>
+          <p className="muted-text">
+            {catalogStatus === 'ready'
+              ? 'Stored in this browser only.'
+              : 'Loading the review deck for local progress.'}
+          </p>
+        </div>
+
+        {progressStats ? (
+          <div className="stats-grid">
+            <article className="stat-block">
+              <p className="label">Introduced</p>
+              <strong>{progressStats.introduced}</strong>
+            </article>
+            <article className="stat-block">
+              <p className="label">Due now</p>
+              <strong>{progressStats.due}</strong>
+            </article>
+            <article className="stat-block">
+              <p className="label">Current streak</p>
+              <strong>{progressStats.currentStreak}</strong>
+            </article>
+            <article className="stat-block">
+              <p className="label">Accuracy</p>
+              <strong>{Math.round(progressStats.accuracy * 100)}%</strong>
+            </article>
+          </div>
+        ) : (
+          <p className="muted-text">The review deck is still loading.</p>
+        )}
       </section>
 
       <section className="page-stack">
@@ -113,6 +157,10 @@ export function OverviewPage() {
             <li key={principle}>{principle}</li>
           ))}
         </ul>
+        <p className="muted-text">
+          Selection pipeline retained {DATASET_SUMMARY.selected_unique_orthographic_verbs} unique orthographic verbs
+          from a larger quality-gated pool.
+        </p>
       </section>
     </section>
   );

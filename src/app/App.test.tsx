@@ -1,17 +1,35 @@
 import { render, screen } from '@testing-library/react';
-import { HashRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
+import { AppStateProvider } from './AppState';
 import { App } from './App';
 
 describe('App bootstrap', () => {
-  it('renders the curriculum overview placeholder', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders the curriculum overview placeholder', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    } as Response);
+
     render(
-      <HashRouter>
-        <App />
-      </HashRouter>,
+      <AppStateProvider>
+        <MemoryRouter
+          initialEntries={['/']}
+          future={{
+            v7_relativeSplatPath: true,
+            v7_startTransition: true,
+          }}
+        >
+          <App />
+        </MemoryRouter>
+      </AppStateProvider>,
     );
 
     expect(
-      screen.getByRole('heading', {
+      await screen.findByRole('heading', {
         name: /build recognition speed across the core written verb deck/i,
       }),
     ).toBeInTheDocument();

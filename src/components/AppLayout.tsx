@@ -4,9 +4,9 @@ import { useAppState } from '../app/AppState';
 import { HeaderSwitch } from './HeaderSwitch';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Overview', end: true },
+  { to: '/', label: 'Home', end: true },
   { to: '/study', label: 'Study' },
-  { to: '/browse', label: 'Browse' },
+  { to: '/index', label: 'Index' },
   { to: '/stats', label: 'Stats' },
   { to: '/settings', label: 'Settings' },
 ];

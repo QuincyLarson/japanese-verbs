@@ -1,29 +1,69 @@
-import { useState } from 'react';
+import { useDeferredValue, useMemo, useState, type FocusEvent } from 'react';
 import { useAppState } from '../app/AppState';
 import { getFormLabel, searchVerbs } from '../lib/stats';
+import type { FormKey, VerbEntry } from '../types/verb';
+
+function isNode(value: EventTarget | null): value is Node {
+  return value instanceof Node;
+}
+
+function getVerbCharacterCount(value: string) {
+  return Array.from(value.replace(/\s+/g, '')).length;
+}
 
 export function BrowsePage() {
   const { verbs, catalogStatus } = useAppState();
   const [query, setQuery] = useState('');
+  const [activeVerbId, setActiveVerbId] = useState<string | null>(null);
+  const [pinnedVerbId, setPinnedVerbId] = useState<string | null>(null);
+  const deferredQuery = useDeferredValue(query);
 
   if (catalogStatus !== 'ready') {
     return (
       <section className="panel stack">
-        <p className="eyebrow">Browse</p>
-        <h2>Loading the verb reference.</h2>
+        <p className="eyebrow">Index</p>
+        <h2>Loading the verb index.</h2>
       </section>
     );
   }
 
-  const results = searchVerbs(verbs, query).slice(0, 60);
+  const results = useMemo(() => searchVerbs(verbs, deferredQuery), [deferredQuery, verbs]);
+  const groups = useMemo(
+    () => ({
+      short: results.filter((entry) => getVerbCharacterCount(entry.orthography) <= 3),
+      long: results.filter((entry) => getVerbCharacterCount(entry.orthography) > 3),
+    }),
+    [results],
+  );
+
+  function activateVerb(entry: VerbEntry, pin = false) {
+    setActiveVerbId(entry.id);
+    if (pin) {
+      setPinnedVerbId(entry.id);
+    } else if (pinnedVerbId && pinnedVerbId !== entry.id) {
+      setPinnedVerbId(null);
+    }
+  }
+
+  function handleBlur(event: FocusEvent<HTMLDivElement>, verbId: string) {
+    if (isNode(event.relatedTarget) && event.currentTarget.contains(event.relatedTarget)) {
+      return;
+    }
+
+    if (pinnedVerbId === verbId) {
+      return;
+    }
+
+    setActiveVerbId((current) => (current === verbId ? null : current));
+  }
 
   return (
     <section className="page-stack">
       <section className="panel stack">
-        <p className="eyebrow">Browse</p>
-        <h2>Inspect verbs outside the study loop.</h2>
+        <p className="eyebrow">Index</p>
+        <h2>All verbs</h2>
         <p className="muted-text">
-          Search by Japanese form, reading, or English meaning. Results stay compact for mobile review.
+          Search by Japanese form, reading, or English meaning. Hover or tap a cell to inspect the verb metadata.
         </p>
         <label className="field-stack">
           <span className="label">Search</span>
@@ -38,72 +78,101 @@ export function BrowsePage() {
         <p className="muted-text">Showing {results.length} results.</p>
       </section>
 
-      {results.map((entry) => (
-        <details className="panel detail-card" key={entry.id}>
-          <summary className="detail-summary">
-            <div>
-              <p className="eyebrow">{entry.reading}</p>
-              <h3 lang="ja">{entry.orthography}</h3>
-            </div>
-            <p className="muted-text">{entry.englishPrimary}</p>
-          </summary>
+      <section className="index-screen stack-sm">
+        {(['short', 'long'] as const).map((group) => (
+          <div
+            key={group}
+            className={group === 'short' ? 'index-grid index-grid--short' : 'index-grid index-grid--long'}
+            role="list"
+            aria-label={group === 'short' ? 'Short verbs' : 'Longer verbs'}
+          >
+            {groups[group].map((entry) => {
+              const isActive = activeVerbId === entry.id;
+              const glossaryPreview = entry.englishGlosses.slice(0, 3).join(' / ');
+              const sampleForms = (['dictionary', 'te', 'past'] as FormKey[])
+                .map((formKey) => entry.forms[formKey])
+                .filter((value): value is NonNullable<typeof value> => Boolean(value))
+                .map((value) => value.jp)
+                .join(' · ');
 
-          <div className="stack">
-            <div className="mini-stats">
-              <div>
-                <span>Class</span>
-                <strong>{entry.verbClass}</strong>
-              </div>
-              <div>
-                <span>Transitivity</span>
-                <strong>{entry.transitivity}</strong>
-              </div>
-              <div>
-                <span>Rank</span>
-                <strong>{entry.bccwjRank}</strong>
-              </div>
-            </div>
+              return (
+                <div
+                  key={entry.id}
+                  className="index-cell"
+                  role="listitem"
+                  onMouseEnter={() => activateVerb(entry)}
+                  onMouseLeave={() => {
+                    if (pinnedVerbId === entry.id) {
+                      return;
+                    }
 
-            <p className="muted-text">{entry.englishGlosses.join(' / ')}</p>
+                    setActiveVerbId((current) => (current === entry.id ? null : current));
+                  }}
+                  onBlur={(event) => handleBlur(event, entry.id)}
+                >
+                  <button
+                    type="button"
+                    className={
+                      group === 'short'
+                        ? isActive
+                          ? 'index-expression index-expression--short is-active'
+                          : 'index-expression index-expression--short'
+                        : isActive
+                          ? 'index-expression index-expression--long is-active'
+                          : 'index-expression index-expression--long'
+                    }
+                    aria-expanded={isActive}
+                    onFocus={() => activateVerb(entry)}
+                    onClick={() => {
+                      if (pinnedVerbId === entry.id) {
+                        setPinnedVerbId(null);
+                        setActiveVerbId(null);
+                        return;
+                      }
 
-            <div className="pill-wrap">
-              {entry.allowedInflections.map((formKey) => (
-                <span className="pill" key={formKey}>
-                  {getFormLabel(formKey)}
-                </span>
-              ))}
-            </div>
+                      activateVerb(entry, true);
+                    }}
+                  >
+                    {entry.orthography}
+                  </button>
 
-            <ul className="compact-list">
-              {entry.sameSpellingOtherReadings.map((alternate) => (
-                <li key={`${entry.id}-${alternate.reading}`}>
-                  Alternate reading: {alternate.reading} - {alternate.english_primary}
-                </li>
-              ))}
-              {entry.alternateSpellings.map((spelling) => (
-                <li key={`${entry.id}-${spelling}`}>Alternate spelling: {spelling}</li>
-              ))}
-            </ul>
-
-            <div className="form-list">
-              {entry.allowedInflections.map((formKey) => {
-                const surface = entry.forms[formKey];
-
-                if (!surface) {
-                  return null;
-                }
-
-                return (
-                  <div className="form-row" key={`${entry.id}-${formKey}`}>
-                    <span>{getFormLabel(formKey)}</span>
-                    <strong lang="ja">{surface.jp}</strong>
-                  </div>
-                );
-              })}
-            </div>
+                  {isActive ? (
+                    <div className="index-popover" role="dialog" aria-label={entry.orthography}>
+                      <p className="index-popover__expression" lang="ja">
+                        {entry.orthography}
+                      </p>
+                      <p className="index-popover__meta">
+                        {entry.reading} · {entry.englishPrimary}
+                      </p>
+                      <div className="index-popover__summaries">
+                        <p className="index-popover__summary">{glossaryPreview}</p>
+                        <p className="index-popover__summary">
+                          {entry.verbClass} · {entry.transitivity} · rank {entry.bccwjRank}
+                        </p>
+                      </div>
+                      <p className="index-popover__origin">
+                        Forms: {sampleForms || 'dictionary only'}
+                      </p>
+                      {entry.sameSpellingOtherReadings.length > 0 ? (
+                        <p className="index-popover__origin">
+                          Alternate reading: {entry.sameSpellingOtherReadings[0].reading}
+                        </p>
+                      ) : null}
+                      <div className="pill-wrap">
+                        {entry.allowedInflections.slice(0, 6).map((formKey) => (
+                          <span className="pill" key={`${entry.id}-${formKey}`}>
+                            {getFormLabel(formKey)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
-        </details>
-      ))}
+        ))}
+      </section>
     </section>
   );
 }

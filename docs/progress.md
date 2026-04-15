@@ -33,3 +33,4 @@
 - 2026-04-15: Added unit coverage for persistence and scheduling, tightened interactive accessibility, created `docs/code-review.md`, and reran the final checks.
 - 2026-04-15: Reworked the UI toward the cleaner `mandarin-idioms` shell: narrow column, sticky utility nav, light neutral palette, flatter panels, and a less promotional overview layout.
 - 2026-04-15: Added a persisted day/night theme switch modeled on `learn-cantonese` and shifted the shell toward that warmer light palette and softer dark mode.
+- 2026-04-15: Rebuilt the home route into a Cantonese-style curriculum sequence and replaced the old browse list with a full compact index of all verbs using Mandarin-Idioms-style hover and pinned popovers.

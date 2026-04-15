@@ -1,0 +1,114 @@
+{
+  "dictionary": {
+    "label": "Dictionary form",
+    "description": "Base plain form. Use this as the tracked verb identity in V1.",
+    "englishTemplate": "[base meaning] / will [base meaning]",
+    "enabledByDefault": true,
+    "group": "core"
+  },
+  "negative": {
+    "label": "Plain negative",
+    "description": "Negated plain form.",
+    "englishTemplate": "do not [base meaning] / does not [base meaning] / will not [base meaning]",
+    "enabledByDefault": true,
+    "group": "core"
+  },
+  "past": {
+    "label": "Plain past",
+    "description": "Completed past form.",
+    "englishTemplate": "did [base meaning] / [past meaning]",
+    "enabledByDefault": true,
+    "group": "core"
+  },
+  "te": {
+    "label": "て-form",
+    "description": "Core connective form. Show as a bullet explanation rather than a single rigid English answer.",
+    "englishTemplate": "[base meaning] and... / after [base meaning]-ing / [base meaning]-ing",
+    "enabledByDefault": true,
+    "group": "core"
+  },
+  "polite": {
+    "label": "Polite non-past",
+    "description": "ます-form.",
+    "englishTemplate": "[base meaning] (polite)",
+    "enabledByDefault": false,
+    "group": "polite"
+  },
+  "politePast": {
+    "label": "Polite past",
+    "description": "ました-form.",
+    "englishTemplate": "[base meaning] (polite past)",
+    "enabledByDefault": false,
+    "group": "polite"
+  },
+  "politeNegative": {
+    "label": "Polite negative",
+    "description": "ません-form.",
+    "englishTemplate": "do not [base meaning] (polite)",
+    "enabledByDefault": false,
+    "group": "polite"
+  },
+  "potential": {
+    "label": "Potential",
+    "description": "Can do the action.",
+    "englishTemplate": "can [base meaning]",
+    "enabledByDefault": true,
+    "group": "derived"
+  },
+  "passive": {
+    "label": "Passive",
+    "description": "Passive / adversative passive explanation should stay compositional in English.",
+    "englishTemplate": "be [past-participle-ish meaning] / be [base meaning]-ed",
+    "enabledByDefault": true,
+    "group": "derived"
+  },
+  "causative": {
+    "label": "Causative",
+    "description": "Make or let someone do the action.",
+    "englishTemplate": "make/let [someone] [base meaning]",
+    "enabledByDefault": true,
+    "group": "derived"
+  },
+  "causativePassive": {
+    "label": "Causative-passive",
+    "description": "User requested an explicit compositional English gloss like 'be made to do X'.",
+    "englishTemplate": "be made to [base meaning]",
+    "enabledByDefault": true,
+    "group": "derived"
+  },
+  "volitional": {
+    "label": "Volitional",
+    "description": "Let's do / will do.",
+    "englishTemplate": "let's [base meaning] / will [base meaning]",
+    "enabledByDefault": false,
+    "group": "extended"
+  },
+  "ba": {
+    "label": "ば conditional",
+    "description": "If-form built with ば.",
+    "englishTemplate": "if [someone] [base meaning]",
+    "enabledByDefault": false,
+    "group": "extended"
+  },
+  "tara": {
+    "label": "たら conditional",
+    "description": "If/when/after-form built from the past + ら.",
+    "englishTemplate": "if/when [someone] [base meaning] / after [someone] [base meaning]",
+    "enabledByDefault": false,
+    "group": "extended"
+  },
+  "imperative": {
+    "label": "Imperative",
+    "description": "Direct command. Hide by default.",
+    "englishTemplate": "[base meaning]!",
+    "enabledByDefault": false,
+    "group": "extended"
+  },
+  "prohibitive": {
+    "label": "Prohibitive",
+    "description": "Direct negative command.",
+    "englishTemplate": "do not [base meaning]!",
+    "enabledByDefault": false,
+    "group": "extended"
+  }
+}

@@ -1,0 +1,1127 @@
+[
+  {
+    "id": "verb-0001",
+    "orthography": "居る",
+    "reading": "いる",
+    "bccwjRank": 4,
+    "reasons": [
+      "same-spelling alternate reading exists"
+    ],
+    "englishGlossesPreview": [
+      "be (of animate objects)",
+      "exist",
+      "stay",
+      "verb indicating continuing action or state (i.e. to be ..ing, to have been ..ing)"
+    ]
+  },
+  {
+    "id": "verb-0002",
+    "orthography": "有る",
+    "reading": "ある",
+    "bccwjRank": 6,
+    "reasons": [
+      "special class: aru_irregular"
+    ],
+    "englishGlossesPreview": [
+      "be (usu. of inanimate objects)",
+      "exist",
+      "live",
+      "have",
+      "be located",
+      "be equipped with",
+      "happen",
+      "come about"
+    ]
+  },
+  {
+    "id": "verb-0004",
+    "orthography": "成る",
+    "reading": "なる",
+    "bccwjRank": 12,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "become",
+      "get",
+      "grow",
+      "be",
+      "reach",
+      "attain",
+      "result in",
+      "prove to be"
+    ]
+  },
+  {
+    "id": "verb-0005",
+    "orthography": "来る",
+    "reading": "くる",
+    "bccwjRank": 27,
+    "reasons": [
+      "special class: kuru",
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "come (spatially or temporally)",
+      "approach",
+      "arrive",
+      "come back",
+      "do ... and come back",
+      "come to be",
+      "become",
+      "get"
+    ]
+  },
+  {
+    "id": "verb-0006",
+    "orthography": "思う",
+    "reading": "おもう",
+    "bccwjRank": 29,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "think",
+      "consider",
+      "believe",
+      "think (of doing)",
+      "plan (to do)",
+      "judge",
+      "assess",
+      "regard"
+    ]
+  },
+  {
+    "id": "verb-0007",
+    "orthography": "見る",
+    "reading": "みる",
+    "bccwjRank": 30,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "see",
+      "look",
+      "watch",
+      "view",
+      "observe",
+      "look over",
+      "look on",
+      "assess"
+    ]
+  },
+  {
+    "id": "verb-0008",
+    "orthography": "行く",
+    "reading": "いく",
+    "bccwjRank": 31,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "go",
+      "proceed",
+      "take place",
+      "die",
+      "pass away",
+      "continue",
+      "have an orgasm",
+      "come"
+    ]
+  },
+  {
+    "id": "verb-0009",
+    "orthography": "出来る",
+    "reading": "できる",
+    "bccwjRank": 33,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "be able (in a position) to do",
+      "be up to the task",
+      "be ready",
+      "be completed",
+      "be made",
+      "be built",
+      "be good at",
+      "be permitted (to do)"
+    ]
+  },
+  {
+    "id": "verb-0012",
+    "orthography": "仕舞う",
+    "reading": "しまう",
+    "bccwjRank": 68,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "finish",
+      "stop",
+      "end",
+      "put an end to",
+      "bring to a close",
+      "close (a business, etc.)",
+      "close down",
+      "shut down"
+    ]
+  },
+  {
+    "id": "verb-0013",
+    "orthography": "持つ",
+    "reading": "もつ",
+    "bccwjRank": 73,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "hold (in one's hand)",
+      "take",
+      "carry",
+      "possess",
+      "have",
+      "own",
+      "maintain",
+      "keep"
+    ]
+  },
+  {
+    "id": "verb-0014",
+    "orthography": "遣る",
+    "reading": "やる",
+    "bccwjRank": 75,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "send",
+      "dispatch",
+      "despatch",
+      "put",
+      "move",
+      "turn (one's head, glance, etc.)",
+      "give (esp. to someone of equal or lower status)",
+      "let have"
+    ]
+  },
+  {
+    "id": "verb-0019",
+    "orthography": "下さる",
+    "reading": "くださる",
+    "bccwjRank": 96,
+    "reasons": [
+      "special class: honorific_aru"
+    ],
+    "englishGlossesPreview": [
+      "give",
+      "confer"
+    ]
+  },
+  {
+    "id": "verb-0020",
+    "orthography": "使う",
+    "reading": "つかう",
+    "bccwjRank": 101,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "use (a thing, method, etc.)",
+      "make use of",
+      "put to use",
+      "use (a person, animal, puppet, etc.)",
+      "employ",
+      "handle",
+      "manage",
+      "manipulate"
+    ]
+  },
+  {
+    "id": "verb-0025",
+    "orthography": "入る",
+    "reading": "はいる",
+    "bccwjRank": 121,
+    "reasons": [
+      "same-spelling alternate reading exists"
+    ],
+    "englishGlossesPreview": [
+      "enter",
+      "break into",
+      "join",
+      "enroll",
+      "contain",
+      "hold",
+      "accommodate",
+      "have (an income of)"
+    ]
+  },
+  {
+    "id": "verb-0026",
+    "orthography": "作る",
+    "reading": "つくる",
+    "bccwjRank": 124,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "make",
+      "produce",
+      "manufacture",
+      "build",
+      "construct",
+      "prepare (food)",
+      "brew (alcohol)",
+      "raise"
+    ]
+  },
+  {
+    "id": "verb-0027",
+    "orthography": "出す",
+    "reading": "だす",
+    "bccwjRank": 138,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "take out",
+      "get out",
+      "put out",
+      "reveal",
+      "show",
+      "submit (e.g. thesis)",
+      "turn in",
+      "publish"
+    ]
+  },
+  {
+    "id": "verb-0028",
+    "orthography": "付ける",
+    "reading": "つける",
+    "bccwjRank": 152,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "attach",
+      "join",
+      "add",
+      "append",
+      "affix",
+      "stick",
+      "glue",
+      "fasten"
+    ]
+  },
+  {
+    "id": "verb-0029",
+    "orthography": "付く",
+    "reading": "つく",
+    "bccwjRank": 154,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "be attached",
+      "be connected with",
+      "adhere",
+      "stick",
+      "cling",
+      "remain imprinted",
+      "scar",
+      "stain"
+    ]
+  },
+  {
+    "id": "verb-0030",
+    "orthography": "受ける",
+    "reading": "うける",
+    "bccwjRank": 158,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "receive",
+      "get",
+      "catch (e.g. a ball)",
+      "be struck by (wind, waves, sunlight, etc.)",
+      "sustain (damage)",
+      "incur (a loss)",
+      "suffer (an injury)",
+      "feel (influence)"
+    ]
+  },
+  {
+    "id": "verb-0034",
+    "orthography": "掛ける",
+    "reading": "かける",
+    "bccwjRank": 172,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "hang (e.g. picture)",
+      "hoist (e.g. sail)",
+      "raise (e.g. flag)",
+      "sit",
+      "take (time, money)",
+      "expend (money, time, etc.)",
+      "make (a call)",
+      "multiply"
+    ]
+  },
+  {
+    "id": "verb-0035",
+    "orthography": "知れる",
+    "reading": "しれる",
+    "bccwjRank": 185,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "become known",
+      "come to light",
+      "be discovered",
+      "be known",
+      "be understood",
+      "obviously not amount to much",
+      "seem trivial",
+      "be evident"
+    ]
+  },
+  {
+    "id": "verb-0036",
+    "orthography": "入れる",
+    "reading": "いれる",
+    "bccwjRank": 190,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "put in",
+      "let in",
+      "take in",
+      "bring in",
+      "insert",
+      "set (a jewel, etc.)",
+      "ink in (e.g. a tattoo)",
+      "admit"
+    ]
+  },
+  {
+    "id": "verb-0037",
+    "orthography": "上げる",
+    "reading": "あげる",
+    "bccwjRank": 196,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "raise",
+      "elevate",
+      "do up (one's hair)",
+      "fly (a kite, etc.)",
+      "launch (fireworks, etc.)",
+      "surface (a submarine, etc.)",
+      "land (a boat)",
+      "deep-fry"
+    ]
+  },
+  {
+    "id": "verb-0039",
+    "orthography": "頂く",
+    "reading": "いただく",
+    "bccwjRank": 210,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "receive",
+      "get",
+      "accept",
+      "take",
+      "buy",
+      "eat",
+      "drink",
+      "be crowned with"
+    ]
+  },
+  {
+    "id": "verb-0040",
+    "orthography": "掛かる",
+    "reading": "かかる",
+    "bccwjRank": 220,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "take (a resource, e.g. time or money)",
+      "hang",
+      "come into view",
+      "arrive",
+      "come under (a contract, a tax)",
+      "start (engines, motors)",
+      "attend",
+      "deal with"
+    ]
+  },
+  {
+    "id": "verb-0046",
+    "orthography": "過ぎる",
+    "reading": "すぎる",
+    "bccwjRank": 258,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "pass through",
+      "pass by",
+      "go beyond",
+      "pass (i.e. of time)",
+      "elapse",
+      "have expired",
+      "have ended",
+      "be over"
+    ]
+  },
+  {
+    "id": "verb-0053",
+    "orthography": "切る",
+    "reading": "きる",
+    "bccwjRank": 328,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "cut",
+      "cut through",
+      "perform (surgery)",
+      "sever (connections, ties)",
+      "turn off (i.e. the light)",
+      "terminate (i.e. a conversation)",
+      "hang up (the phone)",
+      "disconnect"
+    ]
+  },
+  {
+    "id": "verb-0058",
+    "orthography": "与える",
+    "reading": "あたえる",
+    "bccwjRank": 379,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "give (esp. to someone of lower status)",
+      "bestow",
+      "grant",
+      "confer",
+      "present",
+      "award",
+      "provide",
+      "afford"
+    ]
+  },
+  {
+    "id": "verb-0065",
+    "orthography": "乗る",
+    "reading": "のる",
+    "bccwjRank": 419,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "get on (train, plane, bus, ship, etc.)",
+      "get in",
+      "board",
+      "take",
+      "embark",
+      "get on (e.g. a footstool)",
+      "step on",
+      "jump on"
+    ]
+  },
+  {
+    "id": "verb-0066",
+    "orthography": "認める",
+    "reading": "みとめる",
+    "bccwjRank": 421,
+    "reasons": [
+      "same-spelling alternate reading exists",
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "recognize",
+      "recognise",
+      "observe",
+      "notice",
+      "deem",
+      "judge",
+      "assess",
+      "approve"
+    ]
+  },
+  {
+    "id": "verb-0069",
+    "orthography": "開く",
+    "reading": "ひらく",
+    "bccwjRank": 436,
+    "reasons": [
+      "same-spelling alternate reading exists"
+    ],
+    "englishGlossesPreview": [
+      "open (e.g. a bank-account, festival, etc.)",
+      "spread out",
+      "open up (flower bud, umbrella, etc.)",
+      "widen (gap, distance, width)",
+      "hold",
+      "give (party, conference, etc.)"
+    ]
+  },
+  {
+    "id": "verb-0073",
+    "orthography": "当たる",
+    "reading": "あたる",
+    "bccwjRank": 468,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "be hit",
+      "strike",
+      "touch",
+      "be in contact",
+      "be affixed",
+      "be equivalent to",
+      "be applicable",
+      "apply to"
+    ]
+  },
+  {
+    "id": "verb-0082",
+    "orthography": "合わせる",
+    "reading": "あわせる",
+    "bccwjRank": 572,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "match (rhythm, speed, etc.)",
+      "join together",
+      "unite",
+      "combine",
+      "add up",
+      "face",
+      "be opposite (someone)",
+      "compare"
+    ]
+  },
+  {
+    "id": "verb-0090",
+    "orthography": "働く",
+    "reading": "はたらく",
+    "bccwjRank": 614,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "work",
+      "labor",
+      "labour",
+      "function",
+      "operate",
+      "be effective",
+      "work (i.e. ... works)",
+      "come into play"
+    ]
+  },
+  {
+    "id": "verb-0091",
+    "orthography": "送る",
+    "reading": "おくる",
+    "bccwjRank": 615,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "send (a thing)",
+      "dispatch",
+      "despatch",
+      "transmit",
+      "take or escort (a person somewhere)",
+      "see off (a person)",
+      "bid farewell (to the departed)",
+      "bury"
+    ]
+  },
+  {
+    "id": "verb-0093",
+    "orthography": "決める",
+    "reading": "きめる",
+    "bccwjRank": 619,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "decide",
+      "choose",
+      "determine",
+      "make up one's mind",
+      "resolve",
+      "set one's heart on",
+      "settle",
+      "arrange"
+    ]
+  },
+  {
+    "id": "verb-0098",
+    "orthography": "為さる",
+    "reading": "なさる",
+    "bccwjRank": 652,
+    "reasons": [
+      "special class: honorific_aru"
+    ],
+    "englishGlossesPreview": [
+      "do"
+    ]
+  },
+  {
+    "id": "verb-0099",
+    "orthography": "立てる",
+    "reading": "たてる",
+    "bccwjRank": 655,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "stand up",
+      "put up",
+      "set up",
+      "erect",
+      "raise",
+      "thrust into",
+      "bury into",
+      "dig into"
+    ]
+  },
+  {
+    "id": "verb-0106",
+    "orthography": "動く",
+    "reading": "うごく",
+    "bccwjRank": 708,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "move",
+      "stir",
+      "shift",
+      "shake",
+      "swing",
+      "operate",
+      "run",
+      "go"
+    ]
+  },
+  {
+    "id": "verb-0107",
+    "orthography": "引く",
+    "reading": "ひく",
+    "bccwjRank": 709,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "pull",
+      "draw (attention, etc.)",
+      "attract (interest, etc.)",
+      "draw back",
+      "draw (a card)",
+      "draw (plan, line, etc.)",
+      "catch (cold)",
+      "play (string instr.)"
+    ]
+  },
+  {
+    "id": "verb-0108",
+    "orthography": "打つ",
+    "reading": "うつ",
+    "bccwjRank": 719,
+    "reasons": [
+      "same-spelling alternate reading exists",
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "hit",
+      "strike",
+      "knock",
+      "beat",
+      "punch",
+      "slap",
+      "tap",
+      "bang"
+    ]
+  },
+  {
+    "id": "verb-0109",
+    "orthography": "止める",
+    "reading": "やめる",
+    "bccwjRank": 723,
+    "reasons": [
+      "same-spelling alternate reading exists"
+    ],
+    "englishGlossesPreview": [
+      "stop",
+      "cease",
+      "end",
+      "quit",
+      "cancel",
+      "abandon",
+      "give up",
+      "abolish"
+    ]
+  },
+  {
+    "id": "verb-0120",
+    "orthography": "上がる",
+    "reading": "あがる",
+    "bccwjRank": 790,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "rise",
+      "go up",
+      "come up",
+      "ascend",
+      "be raised",
+      "enter (esp. from outdoors)",
+      "come in",
+      "go in"
+    ]
+  },
+  {
+    "id": "verb-0121",
+    "orthography": "覚える",
+    "reading": "おぼえる",
+    "bccwjRank": 791,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "memorize",
+      "memorise",
+      "commit to memory",
+      "learn by heart",
+      "bear in mind",
+      "remember",
+      "learn",
+      "pick up"
+    ]
+  },
+  {
+    "id": "verb-0124",
+    "orthography": "成す",
+    "reading": "なす",
+    "bccwjRank": 822,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "build up",
+      "establish",
+      "form",
+      "become (a state)",
+      "accomplish",
+      "achieve",
+      "succeed in",
+      "change into"
+    ]
+  },
+  {
+    "id": "verb-0126",
+    "orthography": "開ける",
+    "reading": "あける",
+    "bccwjRank": 836,
+    "reasons": [
+      "same-spelling alternate reading exists"
+    ],
+    "englishGlossesPreview": [
+      "open (a door, etc.)",
+      "unwrap (e.g. parcel, package)",
+      "unlock",
+      "open (for business, etc.)",
+      "empty",
+      "clear out",
+      "make space",
+      "make room"
+    ]
+  },
+  {
+    "id": "verb-0132",
+    "orthography": "合う",
+    "reading": "あう",
+    "bccwjRank": 876,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "come together",
+      "merge",
+      "unite",
+      "meet",
+      "fit",
+      "match",
+      "suit",
+      "agree with"
+    ]
+  },
+  {
+    "id": "verb-0140",
+    "orthography": "落ちる",
+    "reading": "おちる",
+    "bccwjRank": 937,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "fall down",
+      "drop",
+      "fall (e.g. rain)",
+      "sink (e.g. sun or moon)",
+      "fall onto (e.g. light or one's gaze)",
+      "be used in a certain place (e.g. money)",
+      "be omitted",
+      "be missing"
+    ]
+  },
+  {
+    "id": "verb-0157",
+    "orthography": "通す",
+    "reading": "とおす",
+    "bccwjRank": 1012,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "stick through",
+      "force through",
+      "spread throughout",
+      "thoroughly diffuse",
+      "make a path between two points",
+      "proceed in a logical manner",
+      "let pass",
+      "allow through"
+    ]
+  },
+  {
+    "id": "verb-0158",
+    "orthography": "上る",
+    "reading": "のぼる",
+    "bccwjRank": 1014,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "ascend",
+      "go up",
+      "climb",
+      "ascend (as a natural process, e.g. the sun)",
+      "rise",
+      "go to (the capital)",
+      "be promoted",
+      "add up to"
+    ]
+  },
+  {
+    "id": "verb-0160",
+    "orthography": "許す",
+    "reading": "ゆるす",
+    "bccwjRank": 1021,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "permit",
+      "allow",
+      "approve",
+      "exempt (from fine)",
+      "excuse (from)",
+      "pardon",
+      "forgive",
+      "release"
+    ]
+  },
+  {
+    "id": "verb-0165",
+    "orthography": "乗せる",
+    "reading": "のせる",
+    "bccwjRank": 1073,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "place on (something)",
+      "give (someone) a ride",
+      "give a lift",
+      "pick up",
+      "help on board",
+      "load (luggage)",
+      "carry",
+      "take on board"
+    ]
+  },
+  {
+    "id": "verb-0171",
+    "orthography": "押す",
+    "reading": "おす",
+    "bccwjRank": 1142,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "push",
+      "press",
+      "apply pressure from above",
+      "press down",
+      "stamp (i.e. a passport)",
+      "apply a seal",
+      "affix (e.g. gold leaf)",
+      "press (someone for something)"
+    ]
+  },
+  {
+    "id": "verb-0172",
+    "orthography": "振る",
+    "reading": "ふる",
+    "bccwjRank": 1152,
+    "reasons": [
+      "same-spelling alternate reading exists",
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "wave",
+      "shake",
+      "swing",
+      "sprinkle",
+      "throw (dice)",
+      "cast (actor)",
+      "allocate (work)",
+      "turn down (somebody)"
+    ]
+  },
+  {
+    "id": "verb-0177",
+    "orthography": "差す",
+    "reading": "さす",
+    "bccwjRank": 1228,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "shine",
+      "be visible",
+      "be tinged with",
+      "rise (of water levels)",
+      "flow in",
+      "be felt (i.e. as an emotion)",
+      "come over one",
+      "hold up (an umbrella, etc.)"
+    ]
+  },
+  {
+    "id": "verb-0184",
+    "orthography": "下りる",
+    "reading": "おりる",
+    "bccwjRank": 1287,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "descend (e.g. a mountain)",
+      "go down",
+      "come down",
+      "alight (e.g. from bus)",
+      "get off",
+      "disembark",
+      "dismount",
+      "step down"
+    ]
+  },
+  {
+    "id": "verb-0191",
+    "orthography": "押さえる",
+    "reading": "おさえる",
+    "bccwjRank": 1321,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "pin something down",
+      "hold something down",
+      "hold something back",
+      "stop",
+      "restrain",
+      "curb",
+      "seize",
+      "grasp"
+    ]
+  },
+  {
+    "id": "verb-0196",
+    "orthography": "張る",
+    "reading": "はる",
+    "bccwjRank": 1362,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "stick",
+      "paste",
+      "affix",
+      "link (e.g. in WWW forums)",
+      "stretch",
+      "spread",
+      "strain",
+      "tighten"
+    ]
+  },
+  {
+    "id": "verb-0201",
+    "orthography": "掲げる",
+    "reading": "かかげる",
+    "bccwjRank": 1422,
+    "reasons": [
+      "many glosses; consider UI simplification"
+    ],
+    "englishGlossesPreview": [
+      "publish",
+      "print",
+      "carry (an article)",
+      "put up",
+      "hang out",
+      "hoist",
+      "fly (a sail)",
+      "float (a flag, kite, etc.)"
+    ]
+  },
+  {
+    "id": "verb-0202",
+    "orthography": "抱く",
+    "reading": "いだく",
+    "bccwjRank": 1437,
+    "reasons": [
+      "same-spelling alternate reading exists"
+    ],
+    "englishGlossesPreview": [
+      "embrace",
+      "hold in the arms (e.g. a baby)",
+      "hug",
+      "harbour (e.g. grudge) (harbor)",
+      "bear (e.g. a grudge)",
+      "entertain (e.g. suspicion)",
+      "have sex with",
+      "make love to"
+    ]
+  }
+]

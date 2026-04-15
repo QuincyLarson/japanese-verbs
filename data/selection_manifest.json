@@ -1,0 +1,48 @@
+{
+  "version": "v1",
+  "title": "Top 1000 Japanese verbs for recognition reading practice",
+  "selectionRules": [
+    "Start from a rank-ordered BCCWJ-derived frequency list.",
+    "Keep only exact surface+reading pairs that match modern verb entries in EDICT/JMdict-style dictionary data.",
+    "Exclude suru-family and noun-plus-suru verbs from the V1 core deck.",
+    "Require kanji+hiragana orthography for the tracked V1 item.",
+    "Keep only words with origin 和 / 漢 / 混 in the working frequency list.",
+    "Quality-gate candidates by keeping entries that are either common in the dictionary source or present in NINJAL educational/basic-vocabulary lists.",
+    "Collapse to one selected entry per orthographic form for V1 mastery tracking. Keep alternate readings as metadata.",
+    "Select the first 1000 unique orthographic verbs after the above filters."
+  ],
+  "summaryStats": {
+    "raw_bccwj_rows": 36396,
+    "exact_modern_verb_matches": 2607,
+    "after_kanji_hiragana_and_origin_filter": 2550,
+    "quality_gated_pool": 2090,
+    "selected_unique_orthographic_verbs": 1000,
+    "median_bccwj_rank": 3923,
+    "max_bccwj_rank_in_selection": 9068,
+    "origin_breakdown": {
+      "和": 995,
+      "混": 5
+    },
+    "class_breakdown": {
+      "godan": 662,
+      "ichidan": 333,
+      "honorific_aru": 3,
+      "aru_irregular": 1,
+      "kuru": 1
+    },
+    "transitivity_breakdown": {
+      "transitive": 546,
+      "intransitive": 353,
+      "unspecified": 65,
+      "both": 36
+    },
+    "edict_common_share": 0.91,
+    "kyoiku_share": 0.993,
+    "rokusyu_share": 0.876
+  },
+  "notes": [
+    "This is a transformed seed dataset for a static educational app.",
+    "Inflected forms are mechanically generated from the selected lemma spelling, with special-case overrides for 来る, 有る, and honorific -aru verbs.",
+    "Some verbs have multiple readings for the same spelling. Those alternate readings are kept in metadata for later UI review."
+  ]
+}

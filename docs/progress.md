@@ -35,3 +35,4 @@
 - 2026-04-15: Added a persisted day/night theme switch modeled on `learn-cantonese` and shifted the shell toward that warmer light palette and softer dark mode.
 - 2026-04-15: Rebuilt the home route into a Cantonese-style curriculum sequence and replaced the old browse list with a full compact index of all verbs using Mandarin-Idioms-style hover and pinned popovers.
 - 2026-04-15: Simplified the shell again by renaming the brand to `JapaneseVerbs.com`, moving settings into the stats route, clarifying burned items, stripping extra explanatory copy, adding a reset confirmation modal, and switching the navbar to a single active underline state.
+- 2026-04-15: Simplified the flash-card route by removing the Home nav item, renaming `Study` to `Flash cards`, deleting the extra study-page intro copy, and replacing the old sidebar filters with compact dropdown controls beneath the card.

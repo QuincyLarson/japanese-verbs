@@ -20,29 +20,35 @@ const GRADE_BUTTONS: Array<{ grade: Grade; label: string }> = [
   { grade: 'easy', label: 'Easy' },
 ];
 
-function FilterButtons<T extends string>({
+function SelectField<T extends string>({
+  id,
+  label,
   options,
   selected,
   onSelect,
 }: {
+  id: string;
+  label: string;
   options: Array<{ id: T; label: string }>;
   selected: T;
   onSelect: (id: T) => void;
 }) {
   return (
-    <div className="segmented-row" role="toolbar">
-      {options.map((option) => (
-        <button
-          key={option.id}
-          aria-pressed={selected === option.id}
-          className={`filter-chip${selected === option.id ? ' is-active' : ''}`}
-          onClick={() => onSelect(option.id)}
-          type="button"
-        >
+    <label className="field-stack" htmlFor={id}>
+      <span className="label">{label}</span>
+      <select
+        className="text-input select-input"
+        id={id}
+        onChange={(event) => onSelect(event.target.value as T)}
+        value={selected}
+      >
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>
           {option.label}
-        </button>
-      ))}
-    </div>
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -81,7 +87,7 @@ export function StudyPage() {
   if (catalogStatus !== 'ready') {
     return (
       <section className="panel stack">
-        <p className="eyebrow">Study</p>
+        <p className="eyebrow">Flash cards</p>
         <h2>Loading review workspace</h2>
         <p className="muted-text">The static verb catalog is still loading.</p>
       </section>
@@ -94,53 +100,125 @@ export function StudyPage() {
 
   return (
     <section className="page-stack">
-      <section className="panel stack">
-        <p className="eyebrow">Study</p>
-        <h2>Reveal, inspect, then self-grade.</h2>
-        <p className="muted-text">
-          Filters stay narrow and deterministic so weak patterns are easy to surface and debug.
-        </p>
-      </section>
+      <article className="panel workspace-card stack">
+        {nextCard ? (
+          <>
+            <div className="surface-block">
+              <p className="surface-form" lang="ja">
+                {nextCard.surface.jp}
+              </p>
+              {!isRevealed ? <p className="muted-text">Tap reveal when you have an answer in mind.</p> : null}
+            </div>
 
-      <section className="study-grid">
-        <article className="panel stack">
-          <p className="label">Form preset</p>
-          <FilterButtons
-            options={FORM_PRESET_OPTIONS.map((option) => ({
-              id: option.id,
-              label: option.label,
-            }))}
-            selected={settingsStore.study.formPresetId}
-            onSelect={(preset) => applyStudyPreset(preset)}
-          />
+            {isRevealed ? (
+              <div className="answer-panel stack">
+                <div className="mini-stats">
+                  <div>
+                    <span>Base verb</span>
+                    <strong lang="ja">{nextCard.entry.orthography}</strong>
+                  </div>
+                  <div>
+                    <span>Reading</span>
+                    <strong lang="ja">{nextCard.entry.reading}</strong>
+                  </div>
+                  <div>
+                    <span>Meaning</span>
+                    <strong>{nextCard.entry.englishPrimary}</strong>
+                  </div>
+                </div>
 
-          <p className="label">Pool</p>
-          <FilterButtons
-            options={POOL_MODE_OPTIONS}
-            selected={settingsStore.study.poolMode}
-            onSelect={(poolMode) =>
-              setStudySettings((current) => ({
-                ...current,
-                poolMode,
-              }))
-            }
-          />
+                <ul className="compact-list">
+                  <li>
+                    Base verb: <strong lang="ja">{nextCard.entry.orthography}</strong> - {nextCard.entry.reading} -{' '}
+                    {nextCard.entry.englishPrimary}
+                  </li>
+                  <li>
+                    Form shown: <strong lang="ja">{nextCard.surface.jp}</strong> ({FORM_PRESETS[nextCard.formKey].label})
+                  </li>
+                  {explanation.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                  {nextCard.entry.inflectionNotes.map((note) => (
+                    <li key={note}>{note}</li>
+                  ))}
+                </ul>
 
-          <p className="label">Slice</p>
-          <FilterButtons
-            options={DECK_SLICE_OPTIONS}
-            selected={settingsStore.study.deckSlice}
-            onSelect={(deckSlice) =>
-              setStudySettings((current) => ({
-                ...current,
-                deckSlice,
-              }))
-            }
-          />
+                <div className="grade-grid">
+                  {GRADE_BUTTONS.map((button) => (
+                    <button
+                      key={button.grade}
+                      className={`grade-button grade-${button.grade}`}
+                      onClick={() => {
+                        recordReview(nextCard.entry.masteryKey, nextCard.formKey, button.grade);
+                        setIsRevealed(false);
+                      }}
+                      type="button"
+                    >
+                      {button.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <button className="block-link" onClick={() => setIsRevealed(true)} type="button">
+                Reveal answer
+              </button>
+            )}
+          </>
+        ) : (
+          <div className="stack">
+            <p className="eyebrow">No matching cards</p>
+            <h3>These filters currently produce an empty queue.</h3>
+            <p className="muted-text">Try mixed mode, reopen burned items, or switch back to the default queue.</p>
+          </div>
+        )}
+
+        <section className="study-controls stack-sm" aria-label="Flash card options">
+          <div className="study-controls__grid">
+            <SelectField
+              id="study-form-preset"
+              label="Forms"
+              options={FORM_PRESET_OPTIONS.map((option) => ({
+                id: option.id,
+                label: option.label,
+              }))}
+              selected={settingsStore.study.formPresetId}
+              onSelect={(preset) => applyStudyPreset(preset)}
+            />
+
+            <SelectField
+              id="study-pool-mode"
+              label="Pool"
+              options={POOL_MODE_OPTIONS}
+              selected={settingsStore.study.poolMode}
+              onSelect={(poolMode) =>
+                setStudySettings((current) => ({
+                  ...current,
+                  poolMode,
+                }))
+              }
+            />
+
+            <SelectField
+              id="study-deck-slice"
+              label="Focus"
+              options={DECK_SLICE_OPTIONS.map((option) => ({
+                id: option.id,
+                label: option.label,
+              }))}
+              selected={settingsStore.study.deckSlice}
+              onSelect={(deckSlice) =>
+                setStudySettings((current) => ({
+                  ...current,
+                  deckSlice,
+                }))
+              }
+            />
+          </div>
 
           {settingsStore.study.formPresetId === 'custom' ? (
-            <div className="stack-sm">
-              <p className="label">Custom forms</p>
+            <details className="debug-box study-custom-forms">
+              <summary>Choose forms</summary>
               <div className="segmented-row">
                 {FORM_ORDER.map((formKey) => (
                   <button
@@ -154,15 +232,11 @@ export function StudyPage() {
                   </button>
                 ))}
               </div>
-            </div>
+            </details>
           ) : null}
 
           {snapshot ? (
-            <div className="mini-stats">
-              <div>
-                <span>Eligible</span>
-                <strong>{snapshot.counts.eligible}</strong>
-              </div>
+            <div className="mini-stats study-mini-stats">
               <div>
                 <span>Due</span>
                 <strong>{snapshot.counts.due}</strong>
@@ -177,98 +251,8 @@ export function StudyPage() {
               </div>
             </div>
           ) : null}
-        </article>
-
-        <article className="panel workspace-card stack">
-          {nextCard ? (
-            <>
-              <div className="stack-sm">
-                <p className="eyebrow">Current prompt</p>
-                <p className="prompt-text">Think of the English meaning before you reveal the answer.</p>
-              </div>
-
-              <div className="surface-block">
-                <p className="surface-form" lang="ja">
-                  {nextCard.surface.jp}
-                </p>
-                {!isRevealed ? <p className="muted-text">Tap reveal when you have an answer in mind.</p> : null}
-              </div>
-
-              {isRevealed ? (
-                <div className="answer-panel stack">
-                  <div className="mini-stats">
-                    <div>
-                      <span>Base verb</span>
-                      <strong lang="ja">{nextCard.entry.orthography}</strong>
-                    </div>
-                    <div>
-                      <span>Reading</span>
-                      <strong lang="ja">{nextCard.entry.reading}</strong>
-                    </div>
-                    <div>
-                      <span>Meaning</span>
-                      <strong>{nextCard.entry.englishPrimary}</strong>
-                    </div>
-                  </div>
-
-                  <ul className="compact-list">
-                    <li>
-                      Base verb: <strong lang="ja">{nextCard.entry.orthography}</strong> - {nextCard.entry.reading} -{' '}
-                      {nextCard.entry.englishPrimary}
-                    </li>
-                    <li>
-                      Form shown: <strong lang="ja">{nextCard.surface.jp}</strong> ({FORM_PRESETS[nextCard.formKey].label})
-                    </li>
-                    {explanation.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                    {nextCard.entry.inflectionNotes.map((note) => (
-                      <li key={note}>{note}</li>
-                    ))}
-                  </ul>
-
-                  <div className="grade-grid">
-                    {GRADE_BUTTONS.map((button) => (
-                      <button
-                        key={button.grade}
-                        className={`grade-button grade-${button.grade}`}
-                        onClick={() => {
-                          recordReview(nextCard.entry.masteryKey, nextCard.formKey, button.grade);
-                          setIsRevealed(false);
-                        }}
-                        type="button"
-                      >
-                        {button.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  <details className="debug-box">
-                    <summary>Review logic</summary>
-                    <ul className="compact-list">
-                      {nextCard.reasons.map((reason) => (
-                        <li key={reason}>{reason}</li>
-                      ))}
-                    </ul>
-                  </details>
-                </div>
-              ) : (
-                <button className="block-link" onClick={() => setIsRevealed(true)} type="button">
-                  Reveal answer
-                </button>
-              )}
-            </>
-          ) : (
-            <div className="stack">
-              <p className="eyebrow">No matching cards</p>
-              <h3>These filters currently produce an empty queue.</h3>
-              <p className="muted-text">
-                Try mixed mode, reopen burned items, or switch back to the default due + new slice.
-              </p>
-            </div>
-          )}
-        </article>
-      </section>
+        </section>
+      </article>
     </section>
   );
 }

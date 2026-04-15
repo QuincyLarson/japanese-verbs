@@ -3,9 +3,8 @@ import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { HeaderSwitch } from './HeaderSwitch';
 
-const NAV_ITEMS = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/study', label: 'Study' },
+const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean }> = [
+  { to: '/study', label: 'Flash cards' },
   { to: '/index', label: 'Index' },
   { to: '/stats', label: 'Stats' },
 ];

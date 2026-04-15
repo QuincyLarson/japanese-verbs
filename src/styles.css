@@ -678,6 +678,19 @@ p {
   color: var(--text-main);
 }
 
+.select-input {
+  appearance: none;
+  padding-right: 2.2rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1rem) calc(50% - 0.12rem),
+    calc(100% - 0.72rem) calc(50% - 0.12rem);
+  background-size: 0.36rem 0.36rem, 0.36rem 0.36rem;
+  background-repeat: no-repeat;
+}
+
 .text-input--multiline {
   min-height: 10rem;
   resize: vertical;
@@ -690,6 +703,23 @@ p {
 .workspace-card {
   gap: 0.8rem;
   min-height: 30rem;
+}
+
+.study-controls {
+  padding-top: 0.1rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.study-controls__grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.study-custom-forms summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
 .surface-block {
@@ -722,6 +752,10 @@ p {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.55rem;
+}
+
+.study-mini-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .mini-stats > div {
@@ -983,12 +1017,16 @@ p {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .study-grid {
-    grid-template-columns: minmax(16rem, 18rem) minmax(0, 1fr);
+  .study-controls__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .mini-stats {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .study-mini-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .section-heading {

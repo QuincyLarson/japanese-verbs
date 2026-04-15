@@ -71,21 +71,32 @@ export function OverviewPage() {
   return (
     <section className="page-stack">
       <section className="panel stack">
-        <p className="eyebrow">Curriculum overview</p>
-        <h2>Build recognition speed across the core written verb deck.</h2>
+        <p className="eyebrow">Home</p>
+        <h2>Curriculum overview</h2>
         <p className="muted-text">
-          Start with the study track that matches your current goal, then branch into stats or browse when you need
-          targeted cleanup.
+          Choose a review preset, inspect local progress, or browse the seed deck. This route is the working home
+          screen, not a landing page.
         </p>
       </section>
 
-      <section className="stats-grid" aria-label="Dataset summary">
-        {QUICK_STATS.map((stat) => (
-          <article className="stat-block" key={stat.label}>
-            <p className="label">{stat.label}</p>
-            <strong>{stat.value}</strong>
-          </article>
-        ))}
+      <section className="panel stack">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Deck</p>
+            <h3>Seed deck summary</h3>
+          </div>
+          <p className="muted-text">
+            {DATASET_SUMMARY.selected_unique_orthographic_verbs} selected orthographic verbs.
+          </p>
+        </div>
+        <div className="stats-grid" aria-label="Dataset summary">
+          {QUICK_STATS.map((stat) => (
+            <article className="stat-block" key={stat.label}>
+              <p className="label">{stat.label}</p>
+              <strong>{stat.value}</strong>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="panel stack">
@@ -129,10 +140,10 @@ export function OverviewPage() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Study tracks</p>
-            <h3>Choose a constrained drill.</h3>
+            <h3>Start with a constrained preset.</h3>
           </div>
-          <Link className="ghost-link" to="/stats">
-            View progress space
+          <Link className="ghost-link" to="/study?preset=mixed-review">
+            Open default review
           </Link>
         </div>
 
@@ -143,7 +154,7 @@ export function OverviewPage() {
               <h3>{track.title}</h3>
               <p className="muted-text">{track.note}</p>
               <Link className="block-link" to={track.to}>
-                Open track
+                Open
               </Link>
             </article>
           ))}
@@ -151,15 +162,15 @@ export function OverviewPage() {
       </section>
 
       <section className="panel stack">
-        <p className="eyebrow">Operating rules</p>
+        <p className="eyebrow">Study model</p>
         <ul className="compact-list">
           {PRINCIPLES.map((principle) => (
             <li key={principle}>{principle}</li>
           ))}
         </ul>
         <p className="muted-text">
-          Selection pipeline retained {DATASET_SUMMARY.selected_unique_orthographic_verbs} unique orthographic verbs
-          from a larger quality-gated pool.
+          The selection pipeline kept {DATASET_SUMMARY.selected_unique_orthographic_verbs} items from a larger
+          quality-gated pool and preserves alternate readings in metadata.
         </p>
       </section>
     </section>

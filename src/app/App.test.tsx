@@ -30,7 +30,7 @@ describe('App bootstrap', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: /build recognition speed across the core written verb deck/i,
+        name: /curriculum overview/i,
       }),
     ).toBeInTheDocument();
   });

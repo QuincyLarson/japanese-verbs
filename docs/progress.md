@@ -31,3 +31,4 @@
 - 2026-04-15: Added the block-style design system, active navigation, and a compact curriculum overview home route with study-track entry points.
 - 2026-04-15: Implemented async catalog loading, localStorage-backed progress/settings, deterministic study scheduling, the reveal/self-grade loop, JSON import/export, browse, and stats routes.
 - 2026-04-15: Added unit coverage for persistence and scheduling, tightened interactive accessibility, created `docs/code-review.md`, and reran the final checks.
+- 2026-04-15: Reworked the UI toward the cleaner `mandarin-idioms` shell: narrow column, sticky utility nav, light neutral palette, flatter panels, and a less promotional overview layout.

@@ -12,7 +12,15 @@ import {
   saveProgressStore,
   saveSettingsStore,
 } from '../lib/storage';
-import type { ExportPayload, FormPresetId, Grade, ProgressStore, SettingsStore, StudySettings } from '../types/study';
+import type {
+  ExportPayload,
+  FormPresetId,
+  Grade,
+  ProgressStore,
+  SettingsStore,
+  StudySettings,
+  ThemePreference,
+} from '../types/study';
 import type { FormKey, VerbEntry } from '../types/verb';
 
 interface AppStateValue {
@@ -21,6 +29,7 @@ interface AppStateValue {
   catalogError?: string;
   progressStore: ProgressStore;
   settingsStore: SettingsStore;
+  setThemePreference: (themePreference: ThemePreference) => void;
   setStudySettings: (updater: StudySettings | ((current: StudySettings) => StudySettings)) => void;
   applyStudyPreset: (presetId: FormPresetId) => void;
   toggleStudyForm: (formKey: FormKey) => void;
@@ -65,6 +74,12 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     catalogError,
     progressStore,
     settingsStore,
+    setThemePreference(themePreference) {
+      setSettingsStore((current) => ({
+        ...current,
+        themePreference,
+      }));
+    },
     setStudySettings(updater) {
       setSettingsStore((current) => ({
         ...current,

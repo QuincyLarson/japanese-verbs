@@ -33,5 +33,11 @@ describe('App bootstrap', () => {
         name: /curriculum overview/i,
       }),
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('switch', {
+        name: /toggle day night mode/i,
+      }),
+    ).toBeInTheDocument();
   });
 });

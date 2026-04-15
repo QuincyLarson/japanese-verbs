@@ -61,6 +61,8 @@ export type FormPresetId =
   | 'polite'
   | 'custom';
 
+export type ThemePreference = 'system' | 'light' | 'dark';
+
 export interface StudySettings {
   poolMode: PoolMode;
   deckSlice: DeckSlice;
@@ -70,6 +72,7 @@ export interface StudySettings {
 
 export interface SettingsStore {
   version: number;
+  themePreference: ThemePreference;
   study: StudySettings;
 }
 

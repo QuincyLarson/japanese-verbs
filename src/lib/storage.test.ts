@@ -6,11 +6,15 @@ describe('storage import/export', () => {
   it('round-trips a valid export payload', () => {
     const payload = buildExportPayload(createEmptyProgressStore(), {
       version: 1,
+      themePreference: 'dark',
       study: DEFAULT_STUDY_SETTINGS,
     });
     const parsed = parseImportPayload(JSON.stringify(payload));
 
     expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.data.settings.themePreference).toBe('dark');
+    }
   });
 
   it('rejects invalid payload content', () => {

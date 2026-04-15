@@ -16,6 +16,10 @@ function isFormKey(value: unknown): value is FormKey {
   return typeof value === 'string' && FORM_ORDER.includes(value as FormKey);
 }
 
+function isThemePreference(value: unknown): value is SettingsStore['themePreference'] {
+  return value === 'system' || value === 'light' || value === 'dark';
+}
+
 function getStorage(): Storage | null {
   if (typeof window === 'undefined') {
     return null;
@@ -39,6 +43,7 @@ function parseJson<T>(raw: string | null): T | null {
 export function createDefaultSettingsStore(): SettingsStore {
   return {
     version: 1,
+    themePreference: 'system',
     study: DEFAULT_STUDY_SETTINGS,
   };
 }
@@ -79,12 +84,13 @@ export function loadSettingsStore(): SettingsStore {
 
   return {
     version: 1,
-      study: {
-        ...DEFAULT_STUDY_SETTINGS,
-        ...parsed.study,
-        customForms: Array.isArray(parsed.study.customForms)
-          ? parsed.study.customForms.filter(isFormKey)
-          : DEFAULT_STUDY_SETTINGS.customForms,
+    themePreference: isThemePreference(parsed.themePreference) ? parsed.themePreference : 'system',
+    study: {
+      ...DEFAULT_STUDY_SETTINGS,
+      ...parsed.study,
+      customForms: Array.isArray(parsed.study.customForms)
+        ? parsed.study.customForms.filter(isFormKey)
+        : DEFAULT_STUDY_SETTINGS.customForms,
     },
   };
 }

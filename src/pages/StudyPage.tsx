@@ -112,21 +112,6 @@ export function StudyPage() {
 
             {isRevealed ? (
               <div className="answer-panel stack">
-                <div className="mini-stats">
-                  <div>
-                    <span>Base verb</span>
-                    <strong lang="ja">{nextCard.entry.orthography}</strong>
-                  </div>
-                  <div>
-                    <span>Reading</span>
-                    <strong lang="ja">{nextCard.entry.reading}</strong>
-                  </div>
-                  <div>
-                    <span>Meaning</span>
-                    <strong>{nextCard.entry.englishPrimary}</strong>
-                  </div>
-                </div>
-
                 <ul className="compact-list">
                   <li>
                     Base verb: <strong lang="ja">{nextCard.entry.orthography}</strong> - {nextCard.entry.reading} -{' '}

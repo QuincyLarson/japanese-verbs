@@ -37,3 +37,4 @@
 - 2026-04-15: Simplified the shell again by renaming the brand to `JapaneseVerbs.com`, moving settings into the stats route, clarifying burned items, stripping extra explanatory copy, adding a reset confirmation modal, and switching the navbar to a single active underline state.
 - 2026-04-15: Simplified the flash-card route by removing the Home nav item, renaming `Study` to `Flash cards`, deleting the extra study-page intro copy, and replacing the old sidebar filters with compact dropdown controls beneath the card.
 - 2026-04-15: Trimmed the index header down to a single search field and added romaji-aware verb search so queries like `yomu` match kana readings without adding a new dependency.
+- 2026-04-15: Removed the redundant revealed-answer summary tiles from the flash-card page so the answer view only shows the explanation list and grading controls.

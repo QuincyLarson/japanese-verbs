@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { HeaderSwitch } from './HeaderSwitch';
 
@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { to: '/study', label: 'Study' },
   { to: '/index', label: 'Index' },
   { to: '/stats', label: 'Stats' },
-  { to: '/settings', label: 'Settings' },
 ];
 
 type ThemeMode = 'light' | 'dark';
@@ -49,9 +48,9 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <header className="top-bar" aria-label="Primary">
-        <NavLink className="brand" end to="/">
-          Japanese Verbs
-        </NavLink>
+        <Link className="brand" to="/">
+          JapaneseVerbs.com
+        </Link>
         <div className="top-bar__controls">
           <nav className="nav-actions">
             {NAV_ITEMS.map((item) => (

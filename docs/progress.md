@@ -34,3 +34,4 @@
 - 2026-04-15: Reworked the UI toward the cleaner `mandarin-idioms` shell: narrow column, sticky utility nav, light neutral palette, flatter panels, and a less promotional overview layout.
 - 2026-04-15: Added a persisted day/night theme switch modeled on `learn-cantonese` and shifted the shell toward that warmer light palette and softer dark mode.
 - 2026-04-15: Rebuilt the home route into a Cantonese-style curriculum sequence and replaced the old browse list with a full compact index of all verbs using Mandarin-Idioms-style hover and pinned popovers.
+- 2026-04-15: Simplified the shell again by renaming the brand to `JapaneseVerbs.com`, moving settings into the stats route, clarifying burned items, stripping extra explanatory copy, adding a reset confirmation modal, and switching the navbar to a single active underline state.

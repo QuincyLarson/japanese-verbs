@@ -6,7 +6,7 @@ import { getCurriculumSections } from '../lib/curriculum';
 import { getPresetFromSearchParam } from '../lib/filters';
 import { getOrCreateProgress, previewGradeResult } from '../lib/progress';
 import { matchesReadingInput } from '../lib/romaji';
-import { canSpeakJapanese, speakJapanese } from '../lib/speech';
+import { canSpeakJapanese, primeJapaneseVoices, speakJapanese } from '../lib/speech';
 import { FORM_PRESETS } from '../lib/dataset';
 import { createStudySnapshot, type ScheduledCard } from '../lib/scheduler';
 
@@ -72,6 +72,7 @@ export function StudyPage() {
   }, [activeCard, suggestedCard]);
 
   useEffect(() => {
+    primeJapaneseVoices();
     setCanSpeak(canSpeakJapanese());
 
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
@@ -123,7 +124,7 @@ export function StudyPage() {
     speakJapanese(currentCard.surface.reading);
     setReviewFeedback(
       typedAnswerMatches
-        ? `Awesome. You'll see it in ${formatDelayLabel(preview.dueAt, now)}.`
+        ? `Awesome. You'll see this again in ${formatDelayLabel(preview.dueAt, now)}.`
         : `No worries. You'll see it again in ${formatDelayLabel(preview.dueAt, now)}.`,
     );
     setIsRevealed(true);

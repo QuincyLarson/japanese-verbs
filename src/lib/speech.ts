@@ -9,6 +9,9 @@ const PLATFORM_VOICE_NAMES: Record<SpeechPlatform, string[]> = {
   other: ['kyoko', 'otoya', 'google 日本語', 'nanami', 'haruka'],
 };
 
+let cachedJapaneseVoice: SpeechSynthesisVoice | null = null;
+let isVoiceWarmupAttached = false;
+
 function hasSpeechSupport() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 }
@@ -95,7 +98,7 @@ function speakNow(text: string) {
 
   const synth = window.speechSynthesis;
   const voices = synth.getVoices();
-  const voice = selectBestJapaneseVoice(voices);
+  const voice = selectBestJapaneseVoice(voices) ?? cachedJapaneseVoice;
   const utterance = new SpeechSynthesisUtterance(text);
 
   utterance.lang = 'ja-JP';
@@ -113,12 +116,49 @@ function speakNow(text: string) {
   return true;
 }
 
+function refreshCachedJapaneseVoice() {
+  if (!hasSpeechSupport()) {
+    cachedJapaneseVoice = null;
+    return null;
+  }
+
+  cachedJapaneseVoice = selectBestJapaneseVoice(window.speechSynthesis.getVoices());
+  return cachedJapaneseVoice;
+}
+
+export function primeJapaneseVoices() {
+  if (!hasSpeechSupport()) {
+    return false;
+  }
+
+  const synth = window.speechSynthesis;
+  refreshCachedJapaneseVoice();
+
+  if (cachedJapaneseVoice || isVoiceWarmupAttached) {
+    return true;
+  }
+
+  const handleVoicesChanged = () => {
+    refreshCachedJapaneseVoice();
+
+    if (cachedJapaneseVoice) {
+      synth.removeEventListener?.('voiceschanged', handleVoicesChanged);
+      isVoiceWarmupAttached = false;
+    }
+  };
+
+  isVoiceWarmupAttached = true;
+  synth.addEventListener?.('voiceschanged', handleVoicesChanged);
+  synth.getVoices();
+  return true;
+}
+
 export function canSpeakJapanese() {
   if (!hasSpeechSupport()) {
     return false;
   }
 
-  window.speechSynthesis.getVoices();
+  primeJapaneseVoices();
   return true;
 }
 
@@ -127,31 +167,7 @@ export function speakJapanese(text: string) {
     return false;
   }
 
-  const synth = window.speechSynthesis;
-  const existingVoices = synth.getVoices();
-
-  if (existingVoices.length > 0) {
-    return speakNow(text);
-  }
-
-  let finished = false;
-
-  const finalize = () => {
-    if (finished) {
-      return;
-    }
-
-    finished = true;
-    synth.removeEventListener?.('voiceschanged', handleVoicesChanged);
-    speakNow(text);
-  };
-
-  const handleVoicesChanged = () => {
-    finalize();
-  };
-
-  synth.addEventListener?.('voiceschanged', handleVoicesChanged);
-  window.setTimeout(finalize, 350);
-  synth.getVoices();
-  return true;
+  refreshCachedJapaneseVoice();
+  primeJapaneseVoices();
+  return speakNow(text);
 }

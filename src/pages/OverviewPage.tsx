@@ -1,149 +1,133 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { CURRICULUM_SECTION_SIZE, orderVerbsForCurriculum } from '../lib/curriculum';
 import { useAppState } from '../app/AppState';
-import type { FormKey } from '../types/verb';
 
-const HOME_ROWS: Array<{
-  id: string;
-  title: string;
-  summary: string;
-  to: string;
-  formKey: FormKey | null;
-}> = [
-  {
-    id: 'mixed-review',
-    title: 'Mixed review',
-    summary: 'Default endless review across the active form families.',
-    to: '/study?preset=mixed-review',
-    formKey: null,
-  },
-  {
-    id: 'dictionary',
-    title: 'Dictionary form',
-    summary: 'Focus on written verb identity before broader inflection work.',
-    to: '/study?preset=dictionary',
-    formKey: 'dictionary',
-  },
-  {
-    id: 'te',
-    title: 'て-form focus',
-    summary: 'Sharpen the connective form with compact repeated exposure.',
-    to: '/study?preset=te',
-    formKey: 'te',
-  },
-  {
-    id: 'core',
-    title: 'Core inflections',
-    summary: 'Practice dictionary, negative, past, and て-form together.',
-    to: '/study?preset=core',
-    formKey: 'past',
-  },
-  {
-    id: 'derived',
-    title: 'Derived forms',
-    summary: 'Review potential, passive, causative, and causative-passive forms.',
-    to: '/study?preset=derived',
-    formKey: 'causative',
-  },
-  {
-    id: 'index',
-    title: 'Index',
-    summary: 'Open the full verb index with compact cells and hover details.',
-    to: '/index',
-    formKey: null,
-  },
-  {
-    id: 'stats',
-    title: 'Stats',
-    summary: 'Inspect weak forms, trouble spots, and streaks.',
-    to: '/stats',
-    formKey: null,
-  },
-  {
-    id: 'settings',
-    title: 'Settings',
-    summary: 'Export, import, or reset local progress.',
-    to: '/settings',
-    formKey: null,
-  },
-  {
-    id: 'polite',
-    title: 'Polite sweep',
-    summary: 'Optional ます-family exposure for reading support.',
-    to: '/study?preset=polite',
-    formKey: 'polite',
-  },
-];
+function CheckIcon() {
+  return (
+    <svg aria-hidden="true" className="unit-card__status-icon" viewBox="0 0 24 24">
+      <path d="M5 12.5 9.5 17 19 7.5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" />
+    </svg>
+  );
+}
 
-function hasAttemptForForm(progressItems: Record<string, { perFormFamily: Partial<Record<FormKey, { correct: number; wrong: number }>> }>, formKey: FormKey) {
-  return Object.values(progressItems).some((progress) => {
-    const form = progress.perFormFamily[formKey];
-    return (form?.correct ?? 0) + (form?.wrong ?? 0) > 0;
-  });
+function SkipIcon() {
+  return (
+    <svg aria-hidden="true" className="unit-card__status-icon" viewBox="0 0 24 24">
+      <path d="M5 16c0-5.8 4.6-10 9.5-10S24 10.2 24 16" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2.2" />
+      <path d="M18 16h6v6" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
+      <path d="m24 22-4.8-4.8" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
+    </svg>
+  );
 }
 
 export function OverviewPage() {
-  const { progressStore } = useAppState();
-  const rows = useMemo(
-    () =>
-      HOME_ROWS.map((row, index) => ({
-        ...row,
-        chapterNumber: index + 1,
-        completed:
-          row.formKey === null
-            ? row.id === 'mixed-review'
-              ? progressStore.meta.totalReviews > 0
-              : false
-            : hasAttemptForForm(progressStore.items, row.formKey),
-        isCurrent: row.id === 'mixed-review',
-      })),
-    [progressStore],
-  );
+  const { verbs, progressStore, catalogStatus } = useAppState();
+  const sections = useMemo(() => {
+    if (catalogStatus !== 'ready') {
+      return [];
+    }
+
+    const ordered = orderVerbsForCurriculum(verbs);
+    const chunks = Array.from({ length: Math.ceil(ordered.length / CURRICULUM_SECTION_SIZE) }, (_, index) =>
+      ordered.slice(index * CURRICULUM_SECTION_SIZE, (index + 1) * CURRICULUM_SECTION_SIZE),
+    ).filter((chunk) => chunk.length > 0);
+
+    const withCounts = chunks.map((entries, index) => {
+      const seenCount = entries.filter((entry) => (progressStore.items[entry.masteryKey]?.totalSeen ?? 0) > 0).length;
+
+      return {
+        id: `section-${index + 1}`,
+        index,
+        entries,
+        seenCount,
+        completed: seenCount === entries.length,
+      };
+    });
+
+    const furthestSeenIndex = withCounts.reduce((highest, section) => (section.seenCount > 0 ? section.index : highest), -1);
+    const currentIndex = withCounts.findIndex((section) => !section.completed && !(section.seenCount === 0 && section.index < furthestSeenIndex));
+
+    return withCounts.map((section) => {
+      const skipped = !section.completed && section.seenCount === 0 && section.index < furthestSeenIndex;
+
+      return {
+        ...section,
+        skipped,
+        isCurrent: currentIndex === section.index,
+        preview: section.entries.slice(0, 3).map((entry) => entry.orthography).join(' / '),
+      };
+    });
+  }, [catalogStatus, progressStore, verbs]);
+
+  if (catalogStatus !== 'ready') {
+    return (
+      <section className="panel stack">
+        <p className="eyebrow">Curriculum</p>
+        <h2>Loading curriculum</h2>
+      </section>
+    );
+  }
 
   return (
     <div className="linear-curriculum linear-curriculum--stacked">
       <section className="linear-curriculum__intro">
         <h1>Curriculum overview</h1>
         <p className="muted-text">
-          Start with mixed review, move into narrower drills when needed, and use the index when you want to inspect
-          verbs directly.
+          Our curriculum is adaptive. Start typing the pronunciation and the deck will adapt to your current
+          proficiency level and give you harder verbs as you improve.
         </p>
-        <p className="linear-curriculum__meta">Local progress stays in this browser.</p>
+        <p className="linear-curriculum__meta">Each section contains 10 verbs. Completed sections are checked off.</p>
+        <Link className="block-link curriculum-start" to="/study">
+          Next verb
+        </Link>
       </section>
 
       <section className="unit-card" aria-labelledby="home-sequence-title">
         <div className="unit-card__body">
           <div className="unit-card__head">
-            <h2 id="home-sequence-title">Start here</h2>
+            <h2 id="home-sequence-title">Curriculum</h2>
             <div className="unit-card__meta">
-              <p className="unit-card__count">{rows.length} routes</p>
+              <p className="unit-card__count">{sections.length} sections</p>
             </div>
           </div>
-          <ol className="unit-card__subsections" aria-label="Home sequence">
-            {rows.map((row) => (
+          <ol className="unit-card__subsections" aria-label="Curriculum sections">
+            {sections.map((section) => (
               <li
-                key={row.id}
+                key={section.id}
                 className={[
                   'unit-card__subsection',
-                  row.completed ? 'is-completed' : '',
-                  row.isCurrent ? 'is-current' : '',
+                  section.completed ? 'is-completed' : '',
+                  section.skipped ? 'is-skipped' : '',
+                  section.isCurrent ? 'is-current' : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
               >
                 <div className="unit-card__rail" aria-hidden="true">
-                  <span className={row.completed ? 'unit-card__status is-completed' : 'unit-card__status'}>
-                    {row.completed ? '✓' : ''}
+                  <span
+                    className={[
+                      'unit-card__status',
+                      section.completed ? 'is-completed' : '',
+                      section.skipped ? 'is-skipped' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    {section.completed ? <CheckIcon /> : section.skipped ? <SkipIcon /> : null}
                   </span>
-                  <span className="unit-card__step">{String(row.chapterNumber).padStart(3, '0')}</span>
+                  <span className="unit-card__step">{String(section.index + 1).padStart(3, '0')}</span>
                 </div>
                 <div className="unit-card__copy">
                   <h3 className="unit-card__title-row">
-                    <Link className="unit-card__link" to={row.to}>
-                      {row.title}
-                    </Link>
+                    <span>Section {String(section.index + 1).padStart(3, '0')}</span>
+                    {section.completed ? <span className="unit-card__badge">Completed</span> : null}
+                    {section.skipped ? <span className="unit-card__badge">Skipped</span> : null}
                   </h3>
-                  <p>{row.summary}</p>
+                  <p>{section.preview}</p>
+                  <p className="unit-card__progress-copy">
+                    {section.seenCount}/{section.entries.length} cards seen
+                  </p>
                 </div>
               </li>
             ))}

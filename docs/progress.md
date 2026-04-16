@@ -39,3 +39,5 @@
 - 2026-04-15: Trimmed the index header down to a single search field and added romaji-aware verb search so queries like `yomu` match kana readings without adding a new dependency.
 - 2026-04-15: Removed the redundant revealed-answer summary tiles from the flash-card page so the answer view only shows the explanation list and grading controls.
 - 2026-04-15: Reworked the flash-card interaction to use typed reading input, collapsed grading to `I know it` and `I don't know it`, and added interval feedback after each review with lightweight hiragana/romaji answer matching.
+- 2026-04-15: Switched the main lesson route to an adaptive typed-answer flow with `Submit [enter]`, `Next verb [enter]`, automatic correctness grading from the typed pronunciation, voice synthesis on submit with a `Hear again` control, and randomized top-window card selection with starter bias so new sessions begin on more useful print-first verbs.
+- 2026-04-15: Rebuilt the home route into 10-card curriculum sections driven by shared curriculum ordering, renamed the main nav action to `Next verb`, and added completed and skipped section states with check and curved-arrow status icons.

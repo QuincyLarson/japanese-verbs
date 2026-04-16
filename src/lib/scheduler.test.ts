@@ -12,6 +12,32 @@ const BASE_SETTINGS: StudySettings = {
 
 const VERBS: VerbEntry[] = [
   {
+    id: 'verb-0',
+    orthography: '居る',
+    reading: 'いる',
+    masteryKey: '居る',
+    bccwjRank: 4,
+    bccwjOrigin: '和',
+    edictCommon: true,
+    inKyoikuBasicVocab: true,
+    inRokusyuTaisyo: true,
+    rawPos: 'v1',
+    verbClass: 'ichidan',
+    endingGroup: 'ichidan_ru',
+    teFormPattern: 'ichidan-て',
+    transitivity: 'intransitive',
+    englishPrimary: 'be (of animate objects)',
+    englishGlosses: ['be (of animate objects)'],
+    alternateSpellings: [],
+    sameSpellingOtherReadings: [],
+    allowedInflections: ['dictionary', 'te'],
+    inflectionNotes: [],
+    forms: {
+      dictionary: { jp: '居る', reading: 'いる' },
+      te: { jp: '居て', reading: 'いて' },
+    },
+  },
+  {
     id: 'verb-1',
     orthography: '食べる',
     reading: 'たべる',
@@ -73,7 +99,7 @@ describe('createStudySnapshot', () => {
     const snapshot = createStudySnapshot(VERBS, store, BASE_SETTINGS, new Date('2026-04-15T12:00:00.000Z'));
 
     expect(snapshot.nextCard?.entry.masteryKey).toBe('食べる');
-    expect(snapshot.counts.new).toBe(1);
+    expect(snapshot.counts.new).toBe(2);
     expect(snapshot.counts.due).toBe(1);
   });
 
@@ -90,5 +116,17 @@ describe('createStudySnapshot', () => {
 
     expect(snapshot.activeForms).toEqual(['dictionary']);
     expect(snapshot.nextCard?.formKey).toBe('dictionary');
+  });
+
+  it('starts new learners inside the starter window instead of always opening on 居る', () => {
+    const snapshot = createStudySnapshot(
+      VERBS,
+      createEmptyProgressStore(),
+      BASE_SETTINGS,
+      new Date('2026-04-15T12:00:00.000Z'),
+    );
+
+    expect(['食べる', '読む']).toContain(snapshot.nextCard?.entry.masteryKey);
+    expect(snapshot.nextCard?.entry.masteryKey).not.toBe('居る');
   });
 });

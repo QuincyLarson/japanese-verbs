@@ -301,6 +301,10 @@ button {
   background: rgba(45, 109, 79, 0.08);
 }
 
+.unit-card__subsection.is-skipped {
+  background: rgba(45, 109, 79, 0.05);
+}
+
 .unit-card__subsection.is-current {
   background: var(--accent-soft);
 }
@@ -327,10 +331,21 @@ button {
   line-height: 1;
 }
 
+.unit-card__status-icon {
+  width: 0.92rem;
+  height: 0.92rem;
+}
+
 .unit-card__status.is-completed {
   border-color: var(--success);
   background: var(--success);
   color: var(--success-text);
+}
+
+.unit-card__status.is-skipped {
+  border-color: var(--success);
+  background: rgba(45, 109, 79, 0.14);
+  color: var(--success);
 }
 
 .unit-card__step {
@@ -352,11 +367,29 @@ button {
   line-height: 1.55;
 }
 
+.unit-card__progress-copy {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+}
+
 .unit-card__title-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.45rem;
+}
+
+.unit-card__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: 0.16rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(45, 109, 79, 0.12);
+  color: var(--success);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .unit-card__link {
@@ -748,6 +781,20 @@ p {
   gap: 0.8rem;
 }
 
+.study-input-block {
+  gap: 1rem;
+  width: min(100%, 24rem);
+  margin: 0 auto;
+}
+
+.helper-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.96rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .review-feedback {
   padding: 0.7rem 0.8rem;
   border-radius: var(--radius-sm);
@@ -757,10 +804,66 @@ p {
   font-weight: 700;
 }
 
+.button-hotkey {
+  color: var(--text-muted);
+  font-size: 0.88em;
+}
+
 .surface-response__input {
   width: min(100%, 24rem);
-  min-height: 5.4rem;
-  resize: vertical;
+  min-height: 3.7rem;
+  padding: 0.92rem 1rem;
+  font-size: 1.28rem;
+  line-height: 1.3;
+  text-align: center;
+  resize: none;
+}
+
+.surface-response__input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
+.study-submit {
+  width: min(100%, 24rem);
+  margin: 0 auto;
+}
+
+.study-actions {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.study-secondary-button {
+  width: min(100%, 24rem);
+  margin: 0 auto;
+  padding: 0.78rem 1rem;
+  background: var(--bg-panel-muted);
+}
+
+.answer-copy {
+  width: min(100%, 34rem);
+  margin: 0 auto;
+}
+
+.answer-line,
+.answer-note {
+  margin: 0;
+  text-align: center;
+}
+
+.answer-line {
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.answer-line--success {
+  color: var(--success);
+}
+
+.answer-note {
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 .mini-stats {

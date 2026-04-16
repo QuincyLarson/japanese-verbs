@@ -1,4 +1,5 @@
 import { FORM_ORDER } from './dataset';
+import { STARTER_PRIORITY } from './curriculum';
 import { resolveFormSelection } from './filters';
 import {
   getOrCreateProgress,
@@ -32,6 +33,43 @@ export interface StudySnapshot {
   };
   activeForms: FormKey[];
   nextCard: ScheduledCard | null;
+}
+
+function getStarterBias(entry: VerbEntry, totalReviews: number) {
+  if (totalReviews >= 24) {
+    return 0;
+  }
+
+  const priorityIndex = STARTER_PRIORITY.indexOf(entry.masteryKey as (typeof STARTER_PRIORITY)[number]);
+
+  if (priorityIndex === -1) {
+    return entry.orthography === '居る' ? -26 : 0;
+  }
+
+  return 26 - priorityIndex;
+}
+
+function hashSeed(value: string) {
+  let hash = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+  }
+
+  return hash;
+}
+
+function pickCandidateFromWindow(candidates: ScheduledCard[], seed: string) {
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const topScore = candidates[0].verbScore;
+  const window = candidates
+    .filter((candidate) => candidate.verbScore >= topScore - 8)
+    .slice(0, 8);
+
+  return window[hashSeed(seed) % window.length] ?? candidates[0];
 }
 
 function getFormScore(progress: ReviewProgress, formKey: FormKey, now: Date): number {
@@ -128,7 +166,13 @@ function matchesDeckSlice(
   return hasRecentMistake(progress, now);
 }
 
-function getVerbScore(entry: VerbEntry, progress: ReviewProgress, now: Date, formBias: number): number {
+function getVerbScore(
+  entry: VerbEntry,
+  progress: ReviewProgress,
+  now: Date,
+  formBias: number,
+  totalReviews: number,
+): number {
   const isNew = isNewVerb(progress);
   const overdueDays = Math.max(0, (now.getTime() - Date.parse(progress.dueAt)) / (24 * 60 * 60 * 1000));
   const dueBias = !isNew && isDue(progress, now) ? 140 + overdueDays * 8 : 0;
@@ -136,8 +180,9 @@ function getVerbScore(entry: VerbEntry, progress: ReviewProgress, now: Date, for
   const weakBias = getWeaknessScore(progress) * 45;
   const mistakeBias = hasRecentMistake(progress, now) ? 32 : 0;
   const rankBias = Math.max(0, 18 - entry.bccwjRank / 300);
+  const starterBias = isNew ? getStarterBias(entry, totalReviews) : 0;
 
-  return dueBias + newBias + weakBias + mistakeBias + rankBias + formBias;
+  return dueBias + newBias + weakBias + mistakeBias + rankBias + formBias + starterBias;
 }
 
 export function createStudySnapshot(
@@ -180,7 +225,13 @@ export function createStudySnapshot(
     }
 
     const selectedForm = forms[0];
-    const verbScore = getVerbScore(entry, baseline, now, selectedForm.score);
+    const verbScore = getVerbScore(
+      entry,
+      baseline,
+      now,
+      selectedForm.score,
+      progressStore.meta.totalReviews,
+    );
     const isNew = isNewVerb(progress);
     const reasons = [
       isNew ? 'new verb' : 'existing review',
@@ -210,6 +261,8 @@ export function createStudySnapshot(
     return left.entry.bccwjRank - right.entry.bccwjRank;
   });
 
+  const seed = `${now.toISOString().slice(0, 10)}:${progressStore.meta.totalReviews}:${settings.formPresetId}:${settings.poolMode}:${settings.deckSlice}`;
+
   return {
     counts: {
       due,
@@ -221,6 +274,6 @@ export function createStudySnapshot(
       eligible: candidates.length,
     },
     activeForms,
-    nextCard: candidates[0] ?? null,
+    nextCard: pickCandidateFromWindow(candidates, seed),
   };
 }

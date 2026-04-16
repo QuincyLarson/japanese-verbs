@@ -2,35 +2,12 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { getInflectionExplanation } from '../lib/conjugation';
-import {
-  DECK_SLICE_OPTIONS,
-  FORM_PRESET_OPTIONS,
-  POOL_MODE_OPTIONS,
-  getPresetFromSearchParam,
-  resolveFormSelection,
-} from '../lib/filters';
+import { getPresetFromSearchParam } from '../lib/filters';
 import { getOrCreateProgress, previewGradeResult } from '../lib/progress';
 import { matchesReadingInput } from '../lib/romaji';
-import { FORM_ORDER, FORM_PRESETS } from '../lib/dataset';
-import { createStudySnapshot } from '../lib/scheduler';
-import type { Grade } from '../types/study';
-
-const REVIEW_BUTTONS: Array<{
-  grade: Grade;
-  label: string;
-  buildMessage: (delayLabel: string) => string;
-}> = [
-  {
-    grade: 'good',
-    label: 'I know it',
-    buildMessage: (delayLabel) => `Awesome. You'll see it in ${delayLabel}.`,
-  },
-  {
-    grade: 'again',
-    label: "I don't know it",
-    buildMessage: (delayLabel) => `No worries. You'll see it again in ${delayLabel}.`,
-  },
-];
+import { canSpeakJapanese, speakJapanese } from '../lib/speech';
+import { FORM_PRESETS } from '../lib/dataset';
+import { createStudySnapshot, type ScheduledCard } from '../lib/scheduler';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -53,100 +30,125 @@ function formatDelayLabel(dueAt: string, now: Date) {
   return `${roundedDays} day${roundedDays === 1 ? '' : 's'}`;
 }
 
-function SelectField<T extends string>({
-  id,
-  label,
-  options,
-  selected,
-  onSelect,
-}: {
-  id: string;
-  label: string;
-  options: Array<{ id: T; label: string }>;
-  selected: T;
-  onSelect: (id: T) => void;
-}) {
-  return (
-    <label className="field-stack" htmlFor={id}>
-      <span className="label">{label}</span>
-      <select
-        className="text-input select-input"
-        id={id}
-        onChange={(event) => onSelect(event.target.value as T)}
-        value={selected}
-      >
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
 export function StudyPage() {
-  const {
-    verbs,
-    catalogStatus,
-    progressStore,
-    settingsStore,
-    applyStudyPreset,
-    setStudySettings,
-    toggleStudyForm,
-    recordReview,
-  } = useAppState();
+  const { verbs, catalogStatus, progressStore, settingsStore, applyStudyPreset, recordReview } = useAppState();
   const [searchParams] = useSearchParams();
   const [isRevealed, setIsRevealed] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState('');
   const [reviewFeedback, setReviewFeedback] = useState<string>();
+  const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
+  const [canSpeak, setCanSpeak] = useState(false);
   const presetFromUrl = getPresetFromSearchParam(searchParams.get('preset'));
 
   useEffect(() => {
     if (presetFromUrl) {
       applyStudyPreset(presetFromUrl);
     }
+    setActiveCard(null);
+    setIsRevealed(false);
+    setTypedAnswer('');
+    setReviewFeedback(undefined);
   }, [presetFromUrl]);
 
   const snapshot =
     catalogStatus === 'ready'
       ? createStudySnapshot(verbs, progressStore, settingsStore.study)
       : null;
-  const activeForms = resolveFormSelection(settingsStore.study);
-  const nextCard = snapshot?.nextCard ?? null;
+  const suggestedCard = snapshot?.nextCard ?? null;
 
   useEffect(() => {
-    setIsRevealed(false);
-    setTypedAnswer('');
-  }, [nextCard?.entry.id, nextCard?.formKey]);
+    if (!activeCard && suggestedCard) {
+      setActiveCard(suggestedCard);
+    }
+  }, [activeCard, suggestedCard]);
 
   useEffect(() => {
-    if (!reviewFeedback) {
+    setCanSpeak(canSpeakJapanese());
+
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       return undefined;
     }
 
-    const timeoutId = window.setTimeout(() => {
-      setReviewFeedback(undefined);
-    }, 2600);
+    const synth = window.speechSynthesis;
+    const update = () => setCanSpeak(canSpeakJapanese());
 
-    return () => window.clearTimeout(timeoutId);
-  }, [reviewFeedback]);
+    synth.addEventListener?.('voiceschanged', update);
+    return () => synth.removeEventListener?.('voiceschanged', update);
+  }, []);
 
   if (catalogStatus !== 'ready') {
     return (
       <section className="panel stack">
-        <p className="eyebrow">Flash cards</p>
+        <p className="eyebrow">Next verb</p>
         <h2>Loading review workspace</h2>
         <p className="muted-text">The static verb catalog is still loading.</p>
       </section>
     );
   }
 
-  const explanation = nextCard
-    ? getInflectionExplanation(nextCard.formKey, nextCard.entry.englishPrimary)
+  const currentCard = activeCard ?? suggestedCard;
+  const explanation = currentCard
+    ? getInflectionExplanation(currentCard.formKey, currentCard.entry.englishPrimary)
     : [];
   const cleanedTypedAnswer = typedAnswer.trim();
-  const typedAnswerMatches = nextCard ? matchesReadingInput(cleanedTypedAnswer, nextCard.surface.reading) : false;
+  const typedAnswerMatches = currentCard ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading) : false;
+  const shouldShowSurfaceDetails =
+    currentCard && (currentCard.surface.jp !== currentCard.entry.orthography || currentCard.formKey !== 'dictionary');
+
+  function handleSubmit() {
+    if (!currentCard || isRevealed) {
+      return;
+    }
+
+    const now = new Date();
+    const grade = typedAnswerMatches ? 'good' : 'again';
+    const progress = getOrCreateProgress(progressStore, currentCard.entry.masteryKey, now.toISOString());
+    const preview = previewGradeResult(progress, grade, now);
+
+    if (!activeCard) {
+      setActiveCard(currentCard);
+    }
+
+    recordReview(currentCard.entry.masteryKey, currentCard.formKey, grade);
+    speakJapanese(currentCard.surface.reading);
+    setReviewFeedback(
+      typedAnswerMatches
+        ? `Awesome. You'll see it in ${formatDelayLabel(preview.dueAt, now)}.`
+        : `No worries. You'll see it again in ${formatDelayLabel(preview.dueAt, now)}.`,
+    );
+    setIsRevealed(true);
+  }
+
+  function handleNextVerb() {
+    setActiveCard(null);
+    setIsRevealed(false);
+    setTypedAnswer('');
+    setReviewFeedback(undefined);
+  }
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Enter' || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.isComposing) {
+        return;
+      }
+
+      if (isRevealed) {
+        event.preventDefault();
+        handleNextVerb();
+        return;
+      }
+
+      if (!currentCard) {
+        return;
+      }
+
+      event.preventDefault();
+      handleSubmit();
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentCard, isRevealed, typedAnswerMatches, typedAnswer, progressStore]);
 
   return (
     <section className="page-stack">
@@ -157,176 +159,98 @@ export function StudyPage() {
           </p>
         ) : null}
 
-        {nextCard ? (
+        {currentCard ? (
           <>
             <div className="surface-block">
               <p className="surface-form" lang="ja">
-                {nextCard.surface.jp}
+                {currentCard.surface.jp}
               </p>
-              {!isRevealed ? (
-                <textarea
-                  aria-label="Type the reading in romaji or hiragana"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  className="text-input surface-response__input"
-                  onChange={(event) => setTypedAnswer(event.target.value)}
-                  placeholder="Type the reading in romaji or hiragana"
-                  rows={3}
-                  spellCheck={false}
-                  value={typedAnswer}
-                />
-              ) : null}
+              <div className="study-input-block stack-sm">
+                <p className="helper-note">
+                  Our curriculum is adaptive. Start typing the pronunciation and the deck will adapt to your level and
+                  get harder as you improve.
+                </p>
+                {!isRevealed ? (
+                  <>
+                    <textarea
+                      aria-label="Type the pronunciation in romaji or hiragana"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      className="text-input surface-response__input"
+                      onChange={(event) => setTypedAnswer(event.target.value)}
+                      placeholder="Type the pronunciation in romaji or hiragana"
+                      rows={2}
+                      spellCheck={false}
+                      value={typedAnswer}
+                    />
+                    <button className="block-link study-submit" onClick={handleSubmit} type="button">
+                      Submit
+                      <span className="button-hotkey"> [enter]</span>
+                    </button>
+                  </>
+                ) : null}
+              </div>
             </div>
 
             {isRevealed ? (
               <div className="answer-panel stack">
-                <ul className="compact-list">
-                  <li>
-                    Base verb: <strong lang="ja">{nextCard.entry.orthography}</strong> - {nextCard.entry.reading} -{' '}
-                    {nextCard.entry.englishPrimary}
-                  </li>
-                  <li>
-                    Form shown: <strong lang="ja">{nextCard.surface.jp}</strong> - {nextCard.surface.reading}{' '}
-                    ({FORM_PRESETS[nextCard.formKey].label})
-                  </li>
+                <div className="answer-copy stack-sm">
+                  <p className="answer-line">
+                    <strong lang="ja">{currentCard.entry.orthography}</strong> - {currentCard.entry.reading} -{' '}
+                    {currentCard.entry.englishPrimary}
+                  </p>
+                  {shouldShowSurfaceDetails ? (
+                    <p className="answer-line">
+                      <strong lang="ja">{currentCard.surface.jp}</strong> - {currentCard.surface.reading}{' '}
+                      ({FORM_PRESETS[currentCard.formKey].label})
+                    </p>
+                  ) : null}
                   {cleanedTypedAnswer ? (
-                    <li>
+                    <p className={`answer-line${typedAnswerMatches ? ' answer-line--success' : ''}`}>
                       Your reading: <strong>{cleanedTypedAnswer}</strong>
                       {typedAnswerMatches ? ' matched the expected reading.' : ''}
-                    </li>
+                    </p>
                   ) : null}
                   {cleanedTypedAnswer && !typedAnswerMatches ? (
-                    <li>
-                      Correct reading: <strong lang="ja">{nextCard.surface.reading}</strong>
-                    </li>
+                    <p className="answer-line">
+                      Correct reading: <strong lang="ja">{currentCard.surface.reading}</strong>
+                    </p>
                   ) : null}
                   {explanation.map((line) => (
-                    <li key={line}>{line}</li>
+                    <p className="answer-note" key={line}>
+                      {line}
+                    </p>
                   ))}
-                  {nextCard.entry.inflectionNotes.map((note) => (
-                    <li key={note}>{note}</li>
-                  ))}
-                </ul>
-
-                <div className="grade-grid">
-                  {REVIEW_BUTTONS.map((button) => (
-                    <button
-                      key={button.grade}
-                      className={`grade-button grade-${button.grade}`}
-                      onClick={() => {
-                        const now = new Date();
-                        const progress = getOrCreateProgress(
-                          progressStore,
-                          nextCard.entry.masteryKey,
-                          now.toISOString(),
-                        );
-                        const preview = previewGradeResult(progress, button.grade, now);
-
-                        recordReview(nextCard.entry.masteryKey, nextCard.formKey, button.grade);
-                        setReviewFeedback(button.buildMessage(formatDelayLabel(preview.dueAt, now)));
-                        setIsRevealed(false);
-                        setTypedAnswer('');
-                      }}
-                      type="button"
-                    >
-                      {button.label}
-                    </button>
+                  {currentCard.entry.inflectionNotes.map((note) => (
+                    <p className="answer-note" key={note}>
+                      {note}
+                    </p>
                   ))}
                 </div>
+                <div className="study-actions">
+                  <button
+                    className="ghost-link study-secondary-button"
+                    disabled={!canSpeak}
+                    onClick={() => speakJapanese(currentCard.surface.reading)}
+                    type="button"
+                  >
+                    Hear again
+                  </button>
+                  <button className="block-link study-submit" onClick={handleNextVerb} type="button">
+                    Next verb
+                    <span className="button-hotkey"> [enter]</span>
+                  </button>
+                </div>
               </div>
-            ) : (
-              <button className="block-link" onClick={() => setIsRevealed(true)} type="button">
-                Check answer
-              </button>
-            )}
+            ) : null}
           </>
         ) : (
           <div className="stack">
             <p className="eyebrow">No matching cards</p>
-            <h3>These filters currently produce an empty queue.</h3>
-            <p className="muted-text">Try mixed mode, reopen burned items, or switch back to the default queue.</p>
+            <h3>No cards are ready right now.</h3>
+            <p className="muted-text">Keep going from the curriculum and the adaptive queue will reopen as items come due.</p>
           </div>
         )}
-
-        <section className="study-controls stack-sm" aria-label="Flash card options">
-          <div className="study-controls__grid">
-            <SelectField
-              id="study-form-preset"
-              label="Forms"
-              options={FORM_PRESET_OPTIONS.map((option) => ({
-                id: option.id,
-                label: option.label,
-              }))}
-              selected={settingsStore.study.formPresetId}
-              onSelect={(preset) => applyStudyPreset(preset)}
-            />
-
-            <SelectField
-              id="study-pool-mode"
-              label="Pool"
-              options={POOL_MODE_OPTIONS}
-              selected={settingsStore.study.poolMode}
-              onSelect={(poolMode) =>
-                setStudySettings((current) => ({
-                  ...current,
-                  poolMode,
-                }))
-              }
-            />
-
-            <SelectField
-              id="study-deck-slice"
-              label="Focus"
-              options={DECK_SLICE_OPTIONS.map((option) => ({
-                id: option.id,
-                label: option.label,
-              }))}
-              selected={settingsStore.study.deckSlice}
-              onSelect={(deckSlice) =>
-                setStudySettings((current) => ({
-                  ...current,
-                  deckSlice,
-                }))
-              }
-            />
-          </div>
-
-          {settingsStore.study.formPresetId === 'custom' ? (
-            <details className="debug-box study-custom-forms">
-              <summary>Choose forms</summary>
-              <div className="segmented-row">
-                {FORM_ORDER.map((formKey) => (
-                  <button
-                    key={formKey}
-                    aria-pressed={activeForms.includes(formKey)}
-                    className={`filter-chip${activeForms.includes(formKey) ? ' is-active' : ''}`}
-                    onClick={() => toggleStudyForm(formKey)}
-                    type="button"
-                  >
-                    {FORM_PRESETS[formKey].label}
-                  </button>
-                ))}
-              </div>
-            </details>
-          ) : null}
-
-          {snapshot ? (
-            <div className="mini-stats study-mini-stats">
-              <div>
-                <span>Due</span>
-                <strong>{snapshot.counts.due}</strong>
-              </div>
-              <div>
-                <span>Weak</span>
-                <strong>{snapshot.counts.weak}</strong>
-              </div>
-              <div>
-                <span>Recent misses</span>
-                <strong>{snapshot.counts.recentMistakes}</strong>
-              </div>
-            </div>
-          ) : null}
-        </section>
       </article>
     </section>
   );

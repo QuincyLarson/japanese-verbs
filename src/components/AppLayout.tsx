@@ -4,7 +4,7 @@ import { useAppState } from '../app/AppState';
 import { HeaderSwitch } from './HeaderSwitch';
 
 const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean }> = [
-  { to: '/study', label: 'Flash cards' },
+  { to: '/study', label: 'Next verb' },
   { to: '/index', label: 'Index' },
   { to: '/stats', label: 'Stats' },
 ];

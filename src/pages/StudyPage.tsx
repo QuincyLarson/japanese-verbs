@@ -168,7 +168,7 @@ export function StudyPage() {
 
   return (
     <section className="page-stack">
-      <article className="panel workspace-card stack">
+      <article className="study-sheet stack">
         {selectedSection && Number.isFinite(selectedSection) ? (
           <p className="eyebrow">Section {String(selectedSection).padStart(3, '0')}</p>
         ) : null}
@@ -202,8 +202,7 @@ export function StudyPage() {
                       value={typedAnswer}
                     />
                     <button className="block-link study-submit" onClick={handleSubmit} type="button">
-                      Submit
-                      <span className="button-hotkey"> [enter]</span>
+                      Submit [enter]
                     </button>
                   </>
                 ) : null}
@@ -260,8 +259,7 @@ export function StudyPage() {
                     </p>
                   ) : null}
                   <button className="block-link study-submit" onClick={handleNextVerb} type="button">
-                    Next verb
-                    <span className="button-hotkey"> [enter]</span>
+                    Next verb [enter]
                   </button>
                 </div>
               </div>

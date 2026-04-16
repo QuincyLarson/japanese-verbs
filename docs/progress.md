@@ -48,3 +48,4 @@
 - 2026-04-15: Flattened the flash-card screen by removing the extra nested box treatment, removed the divider under the navbar, and normalized the button labels so `Submit [enter]` and `Next verb [enter]` render as single uniform button strings.
 - 2026-04-15: Tweaked the success feedback copy to `You'll see this again ...` and made browser speech more reliable by prewarming and caching the best Japanese voice before submit, so playback does not depend on an async first-call `voiceschanged` path.
 - 2026-04-15: Added a catch-all route redirect back to `/` so bad hash paths degrade to the curriculum view instead of rendering a blank screen, and covered that behavior in the router test.
+- 2026-04-15: Added a `Hear again [space]` replay hotkey on revealed cards, removed the initial false disabled state from the replay control so supported browsers do not render it as muted on first reveal, and covered the keyboard replay path in a focused study-page test.

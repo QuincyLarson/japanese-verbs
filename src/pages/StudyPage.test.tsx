@@ -1,0 +1,89 @@
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { createEmptyProgressStore } from '../lib/progress';
+import { createDefaultSettingsStore } from '../lib/storage';
+import type { VerbEntry } from '../types/verb';
+import { StudyPage } from './StudyPage';
+
+const speakJapanese = vi.fn();
+
+const mockVerb: VerbEntry = {
+  id: 'verb-yomu',
+  orthography: '読む',
+  reading: 'よむ',
+  masteryKey: '読む',
+  bccwjRank: 24,
+  bccwjOrigin: 'bccwj',
+  edictCommon: true,
+  inKyoikuBasicVocab: true,
+  inRokusyuTaisyo: true,
+  rawPos: 'v5m',
+  verbClass: 'godan',
+  endingGroup: 'mu',
+  teFormPattern: 'godan-んで',
+  transitivity: 'transitive',
+  englishPrimary: 'read',
+  englishGlosses: ['read'],
+  alternateSpellings: [],
+  sameSpellingOtherReadings: [],
+  allowedInflections: ['dictionary', 'te'],
+  inflectionNotes: [],
+  forms: {
+    dictionary: {
+      jp: '読む',
+      reading: 'よむ',
+    },
+    te: {
+      jp: '読んで',
+      reading: 'よんで',
+    },
+  },
+};
+
+const mockUseAppState = vi.fn();
+
+vi.mock('../app/AppState', () => ({
+  useAppState: () => mockUseAppState(),
+}));
+
+vi.mock('../lib/speech', () => ({
+  canSpeakJapanese: vi.fn(() => true),
+  primeJapaneseVoices: vi.fn(() => true),
+  speakJapanese: (...args: unknown[]) => speakJapanese(...args),
+}));
+
+describe('StudyPage', () => {
+  beforeEach(() => {
+    speakJapanese.mockReset();
+    mockUseAppState.mockReturnValue({
+      verbs: [mockVerb],
+      catalogStatus: 'ready',
+      progressStore: createEmptyProgressStore(),
+      settingsStore: createDefaultSettingsStore(),
+      applyStudyPreset: vi.fn(),
+      recordReview: vi.fn(),
+    });
+  });
+
+  it('replays the current verb with the spacebar after reveal', async () => {
+    render(
+      <MemoryRouter initialEntries={['/study']}>
+        <StudyPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.change(screen.getByRole('textbox', { name: /type the pronunciation/i }), {
+      target: { value: 'yomu' },
+    });
+    fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
+
+    expect(speakJapanese).toHaveBeenCalledTimes(1);
+    expect(speakJapanese).toHaveBeenLastCalledWith('よむ');
+    expect(await screen.findByRole('button', { name: /hear again \[space\]/i })).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: ' ', code: 'Space' });
+
+    expect(speakJapanese).toHaveBeenCalledTimes(2);
+    expect(speakJapanese).toHaveBeenLastCalledWith('よむ');
+  });
+});

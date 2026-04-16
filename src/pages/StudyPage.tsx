@@ -38,7 +38,7 @@ export function StudyPage() {
   const [typedAnswer, setTypedAnswer] = useState('');
   const [reviewFeedback, setReviewFeedback] = useState<string>();
   const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
-  const [canSpeak, setCanSpeak] = useState(false);
+  const [canSpeak, setCanSpeak] = useState(() => canSpeakJapanese());
   const inputRef = useRef<HTMLInputElement | null>(null);
   const presetFromUrl = getPresetFromSearchParam(searchParams.get('preset'));
   const sectionParam = searchParams.get('section');
@@ -72,8 +72,7 @@ export function StudyPage() {
   }, [activeCard, suggestedCard]);
 
   useEffect(() => {
-    primeJapaneseVoices();
-    setCanSpeak(canSpeakJapanese());
+    setCanSpeak(primeJapaneseVoices());
 
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       return undefined;
@@ -137,6 +136,14 @@ export function StudyPage() {
     setReviewFeedback(undefined);
   }
 
+  function handleHearAgain() {
+    if (!currentCard) {
+      return;
+    }
+
+    speakJapanese(currentCard.surface.reading);
+  }
+
   useEffect(() => {
     if (!isRevealed) {
       inputRef.current?.focus();
@@ -145,27 +152,39 @@ export function StudyPage() {
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key !== 'Enter' || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.isComposing) {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.isComposing || event.repeat) {
         return;
       }
 
-      if (isRevealed) {
+      if (event.key === 'Enter') {
+        if (isRevealed) {
+          event.preventDefault();
+          handleNextVerb();
+          return;
+        }
+
+        if (!currentCard) {
+          return;
+        }
+
         event.preventDefault();
-        handleNextVerb();
+        handleSubmit();
         return;
       }
 
-      if (!currentCard) {
+      if (!isRevealed || !currentCard || !canSpeak) {
         return;
       }
 
-      event.preventDefault();
-      handleSubmit();
+      if (event.key === ' ' || event.code === 'Space') {
+        event.preventDefault();
+        handleHearAgain();
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentCard, isRevealed, typedAnswerMatches, typedAnswer, progressStore]);
+  }, [canSpeak, currentCard, isRevealed, typedAnswerMatches, typedAnswer, progressStore]);
 
   return (
     <section className="page-stack">
@@ -249,10 +268,10 @@ export function StudyPage() {
                   <button
                     className="ghost-link study-secondary-button"
                     disabled={!canSpeak}
-                    onClick={() => speakJapanese(currentCard.surface.reading)}
+                    onClick={handleHearAgain}
                     type="button"
                   >
-                    Hear again
+                    Hear again [space]
                   </button>
                   {reviewFeedback ? (
                     <p aria-live="polite" className="review-feedback" role="status">

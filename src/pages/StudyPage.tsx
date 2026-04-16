@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { getInflectionExplanation } from '../lib/conjugation';
+import { getCurriculumSections } from '../lib/curriculum';
 import { getPresetFromSearchParam } from '../lib/filters';
 import { getOrCreateProgress, previewGradeResult } from '../lib/progress';
 import { matchesReadingInput } from '../lib/romaji';
@@ -39,6 +40,8 @@ export function StudyPage() {
   const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
   const [canSpeak, setCanSpeak] = useState(false);
   const presetFromUrl = getPresetFromSearchParam(searchParams.get('preset'));
+  const sectionParam = searchParams.get('section');
+  const selectedSection = sectionParam ? Number.parseInt(sectionParam, 10) : null;
 
   useEffect(() => {
     if (presetFromUrl) {
@@ -48,11 +51,16 @@ export function StudyPage() {
     setIsRevealed(false);
     setTypedAnswer('');
     setReviewFeedback(undefined);
-  }, [presetFromUrl]);
+  }, [presetFromUrl, sectionParam]);
+
+  const studyVerbs =
+    catalogStatus === 'ready' && selectedSection && Number.isFinite(selectedSection) && selectedSection > 0
+      ? getCurriculumSections(verbs)[selectedSection - 1] ?? verbs
+      : verbs;
 
   const snapshot =
     catalogStatus === 'ready'
-      ? createStudySnapshot(verbs, progressStore, settingsStore.study)
+      ? createStudySnapshot(studyVerbs, progressStore, settingsStore.study)
       : null;
   const suggestedCard = snapshot?.nextCard ?? null;
 
@@ -153,6 +161,10 @@ export function StudyPage() {
   return (
     <section className="page-stack">
       <article className="panel workspace-card stack">
+        {selectedSection && Number.isFinite(selectedSection) ? (
+          <p className="eyebrow">Section {String(selectedSection).padStart(3, '0')}</p>
+        ) : null}
+
         {reviewFeedback ? (
           <p aria-live="polite" className="review-feedback" role="status">
             {reviewFeedback}

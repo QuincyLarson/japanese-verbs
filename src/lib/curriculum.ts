@@ -42,3 +42,11 @@ export function orderVerbsForCurriculum(verbs: VerbEntry[]) {
 
   return [...starter, ...remaining];
 }
+
+export function getCurriculumSections(verbs: VerbEntry[]) {
+  const ordered = orderVerbsForCurriculum(verbs);
+
+  return Array.from({ length: Math.ceil(ordered.length / CURRICULUM_SECTION_SIZE) }, (_, index) =>
+    ordered.slice(index * CURRICULUM_SECTION_SIZE, (index + 1) * CURRICULUM_SECTION_SIZE),
+  ).filter((chunk) => chunk.length > 0);
+}

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { CURRICULUM_SECTION_SIZE, orderVerbsForCurriculum } from '../lib/curriculum';
+import { getCurriculumSections } from '../lib/curriculum';
 import { useAppState } from '../app/AppState';
 
 function CheckIcon() {
@@ -28,10 +28,7 @@ export function OverviewPage() {
       return [];
     }
 
-    const ordered = orderVerbsForCurriculum(verbs);
-    const chunks = Array.from({ length: Math.ceil(ordered.length / CURRICULUM_SECTION_SIZE) }, (_, index) =>
-      ordered.slice(index * CURRICULUM_SECTION_SIZE, (index + 1) * CURRICULUM_SECTION_SIZE),
-    ).filter((chunk) => chunk.length > 0);
+    const chunks = getCurriculumSections(verbs);
 
     const withCounts = chunks.map((entries, index) => {
       const seenCount = entries.filter((entry) => (progressStore.items[entry.masteryKey]?.totalSeen ?? 0) > 0).length;
@@ -120,7 +117,9 @@ export function OverviewPage() {
                 </div>
                 <div className="unit-card__copy">
                   <h3 className="unit-card__title-row">
-                    <span>Section {String(section.index + 1).padStart(3, '0')}</span>
+                    <Link className="unit-card__link" to={`/study?section=${section.index + 1}`}>
+                      Section {String(section.index + 1).padStart(3, '0')}
+                    </Link>
                     {section.completed ? <span className="unit-card__badge">Completed</span> : null}
                     {section.skipped ? <span className="unit-card__badge">Skipped</span> : null}
                   </h3>

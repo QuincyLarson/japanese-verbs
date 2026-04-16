@@ -188,15 +188,15 @@ export function StudyPage() {
 
   return (
     <section className="page-stack">
-      <article className="study-sheet stack">
+      <article className={`study-sheet stack${isRevealed ? ' study-sheet--revealed' : ''}`}>
         {selectedSection && Number.isFinite(selectedSection) ? (
           <p className="eyebrow">Section {String(selectedSection).padStart(3, '0')}</p>
         ) : null}
 
         {currentCard ? (
           <>
-            <div className="surface-block">
-              <p className="surface-form" lang="ja">
+            <div className={`surface-block${isRevealed ? ' surface-block--revealed' : ''}`}>
+              <p className={`surface-form${isRevealed ? ' surface-form--revealed' : ''}`} lang="ja">
                 {currentCard.surface.jp}
               </p>
               <div className="study-input-block stack-sm">

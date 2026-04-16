@@ -224,6 +224,12 @@ button {
 .study-sheet {
   display: grid;
   gap: 0.85rem;
+  min-height: calc(100dvh - 4.75rem);
+  align-content: start;
+}
+
+.study-sheet--revealed {
+  gap: 0.6rem;
 }
 
 .linear-curriculum {
@@ -782,11 +788,17 @@ p {
   align-items: center;
   justify-content: center;
   gap: 1.1rem;
-  min-height: 22rem;
+  min-height: min(22rem, 48dvh);
   padding: 0.6rem 0;
   background: transparent;
   box-shadow: none;
   text-align: center;
+}
+
+.surface-block--revealed {
+  gap: 0.55rem;
+  min-height: clamp(7rem, 16dvh, 9.5rem);
+  padding: 0.1rem 0 0;
 }
 
 .surface-form {
@@ -799,8 +811,12 @@ p {
   word-break: break-word;
 }
 
+.surface-form--revealed {
+  font-size: clamp(2.3rem, 8vw, 3.2rem);
+}
+
 .answer-panel {
-  gap: 0.8rem;
+  gap: 0.6rem;
 }
 
 .study-input-block {
@@ -822,7 +838,7 @@ p {
 .review-feedback {
   width: min(100%, 24rem);
   margin: 0 auto;
-  padding: 0.7rem 0.8rem;
+  padding: 0.58rem 0.72rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--accent-soft);
@@ -842,7 +858,7 @@ p {
 
 .surface-response__input {
   width: min(100%, 24rem);
-  min-height: 4.25rem;
+  min-height: 3.9rem;
   padding: 0 1rem;
   border: 2px solid var(--border-strong);
   font-size: clamp(1.35rem, 4vw, 1.85rem);
@@ -865,7 +881,7 @@ p {
 
 .study-actions {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.5rem;
   justify-items: center;
   align-items: center;
 }
@@ -873,13 +889,15 @@ p {
 .study-secondary-button {
   width: min(100%, 24rem);
   margin: 0 auto;
-  padding: 0.78rem 1rem;
+  padding: 0.68rem 1rem;
   background: var(--bg-panel-muted);
 }
 
 .answer-copy {
   width: min(100%, 34rem);
   margin: 0 auto;
+  display: grid;
+  gap: 0.28rem;
 }
 
 .answer-line,
@@ -889,8 +907,8 @@ p {
 }
 
 .answer-line {
-  font-size: 1.02rem;
-  line-height: 1.55;
+  font-size: 0.97rem;
+  line-height: 1.38;
 }
 
 .answer-line--success {
@@ -899,7 +917,71 @@ p {
 
 .answer-note {
   color: var(--text-muted);
-  line-height: 1.6;
+  font-size: 0.93rem;
+  line-height: 1.42;
+}
+
+@media (max-height: 760px) {
+  .study-sheet {
+    min-height: calc(100dvh - 4.35rem);
+    gap: 0.55rem;
+  }
+
+  .surface-block {
+    min-height: min(18rem, 41dvh);
+    gap: 0.8rem;
+  }
+
+  .surface-block--revealed {
+    min-height: clamp(5.5rem, 13dvh, 7.25rem);
+    gap: 0.4rem;
+  }
+
+  .surface-form {
+    font-size: clamp(2.4rem, 10vw, 3.7rem);
+  }
+
+  .surface-form--revealed {
+    font-size: clamp(2rem, 7vw, 2.7rem);
+  }
+
+  .study-input-block {
+    gap: 0.75rem;
+  }
+
+  .helper-note {
+    font-size: 0.9rem;
+    line-height: 1.42;
+  }
+
+  .surface-response__input {
+    min-height: 3.5rem;
+    font-size: clamp(1.2rem, 3.3vw, 1.6rem);
+  }
+
+  .study-submit,
+  .study-secondary-button,
+  .review-feedback {
+    width: min(100%, 22rem);
+  }
+
+  .answer-panel {
+    gap: 0.45rem;
+  }
+
+  .answer-copy {
+    gap: 0.22rem;
+  }
+
+  .answer-line {
+    font-size: 0.92rem;
+    line-height: 1.3;
+  }
+
+  .answer-note {
+    font-size: 0.89rem;
+    line-height: 1.34;
+  }
 }
 
 .mini-stats {

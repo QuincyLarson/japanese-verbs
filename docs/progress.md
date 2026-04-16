@@ -50,3 +50,4 @@
 - 2026-04-15: Added a catch-all route redirect back to `/` so bad hash paths degrade to the curriculum view instead of rendering a blank screen, and covered that behavior in the router test.
 - 2026-04-15: Added a `Hear again [space]` replay hotkey on revealed cards, removed the initial false disabled state from the replay control so supported browsers do not render it as muted on first reveal, and covered the keyboard replay path in a focused study-page test.
 - 2026-04-15: Tightened the revealed study-card layout for short laptop viewports by collapsing the post-submit verb block, reducing answer/action spacing, and adding a low-height media pass so the review state stays above the fold more reliably on an 11-inch MacBook Air-sized Chrome window.
+- 2026-04-15: Simplified the navbar theme toggle by removing the boxed Day/Night control and replacing it with a compact sun/moon icon switch that keeps the same accessible `switch` semantics.

@@ -101,7 +101,7 @@ export function StudyPage() {
     : [];
   const cleanedTypedAnswer = typedAnswer.trim();
   const typedAnswerMatches = currentCard ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading) : false;
-  const showPronunciationHint = progressStore.meta.totalReviews < 10;
+  const showPronunciationHint = progressStore.meta.totalReviews < 4;
   const shouldShowSurfaceDetails =
     currentCard && (currentCard.surface.jp !== currentCard.entry.orthography || currentCard.formKey !== 'dictionary');
 
@@ -171,12 +171,6 @@ export function StudyPage() {
       <article className="panel workspace-card stack">
         {selectedSection && Number.isFinite(selectedSection) ? (
           <p className="eyebrow">Section {String(selectedSection).padStart(3, '0')}</p>
-        ) : null}
-
-        {reviewFeedback ? (
-          <p aria-live="polite" className="review-feedback" role="status">
-            {reviewFeedback}
-          </p>
         ) : null}
 
         {currentCard ? (
@@ -260,6 +254,11 @@ export function StudyPage() {
                   >
                     Hear again
                   </button>
+                  {reviewFeedback ? (
+                    <p aria-live="polite" className="review-feedback" role="status">
+                      {reviewFeedback}
+                    </p>
+                  ) : null}
                   <button className="block-link study-submit" onClick={handleNextVerb} type="button">
                     Next verb
                     <span className="button-hotkey"> [enter]</span>

@@ -816,6 +816,8 @@ p {
 }
 
 .review-feedback {
+  width: min(100%, 24rem);
+  margin: 0 auto;
   padding: 0.7rem 0.8rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
@@ -823,6 +825,8 @@ p {
   color: var(--text-main);
   font-family: var(--mono);
   font-weight: 700;
+  align-self: center;
+  justify-self: center;
   text-align: center;
 }
 
@@ -856,6 +860,8 @@ p {
 .study-actions {
   display: grid;
   gap: 0.65rem;
+  justify-items: center;
+  align-items: center;
 }
 
 .study-secondary-button {

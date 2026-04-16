@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { getInflectionExplanation } from '../lib/conjugation';
@@ -39,6 +39,7 @@ export function StudyPage() {
   const [reviewFeedback, setReviewFeedback] = useState<string>();
   const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
   const [canSpeak, setCanSpeak] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const presetFromUrl = getPresetFromSearchParam(searchParams.get('preset'));
   const sectionParam = searchParams.get('section');
   const selectedSection = sectionParam ? Number.parseInt(sectionParam, 10) : null;
@@ -100,6 +101,7 @@ export function StudyPage() {
     : [];
   const cleanedTypedAnswer = typedAnswer.trim();
   const typedAnswerMatches = currentCard ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading) : false;
+  const showPronunciationHint = progressStore.meta.totalReviews < 10;
   const shouldShowSurfaceDetails =
     currentCard && (currentCard.surface.jp !== currentCard.entry.orthography || currentCard.formKey !== 'dictionary');
 
@@ -133,6 +135,12 @@ export function StudyPage() {
     setTypedAnswer('');
     setReviewFeedback(undefined);
   }
+
+  useEffect(() => {
+    if (!isRevealed) {
+      inputRef.current?.focus();
+    }
+  }, [currentCard?.entry.id, currentCard?.formKey, isRevealed]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -178,21 +186,25 @@ export function StudyPage() {
                 {currentCard.surface.jp}
               </p>
               <div className="study-input-block stack-sm">
-                <p className="helper-note">
-                  Our curriculum is adaptive. Start typing the pronunciation and the deck will adapt to your level and
-                  get harder as you improve.
-                </p>
+                {showPronunciationHint ? (
+                  <p className="helper-note">
+                    Our curriculum is adaptive. Just start typing the pronunciation and we&apos;ll adapt to your current
+                    proficiency level and give you harder verbs.
+                  </p>
+                ) : null}
                 {!isRevealed ? (
                   <>
-                    <textarea
+                    <input
+                      ref={inputRef}
                       aria-label="Type the pronunciation in romaji or hiragana"
                       autoCapitalize="none"
+                      autoComplete="off"
                       autoCorrect="off"
                       className="text-input surface-response__input"
                       onChange={(event) => setTypedAnswer(event.target.value)}
-                      placeholder="Type the pronunciation in romaji or hiragana"
-                      rows={2}
+                      placeholder={showPronunciationHint ? 'type the pronunciation' : ''}
                       spellCheck={false}
+                      type="text"
                       value={typedAnswer}
                     />
                     <button className="block-link study-submit" onClick={handleSubmit} type="button">

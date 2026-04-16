@@ -47,3 +47,4 @@
 - 2026-04-15: Replaced the naive speech hook with platform-aware Japanese voice selection that waits for `speechSynthesis.getVoices()`, ranks Apple/Google/Microsoft Japanese voices by browser platform, and falls back cleanly when the voice list arrives late on first use.
 - 2026-04-15: Flattened the flash-card screen by removing the extra nested box treatment, removed the divider under the navbar, and normalized the button labels so `Submit [enter]` and `Next verb [enter]` render as single uniform button strings.
 - 2026-04-15: Tweaked the success feedback copy to `You'll see this again ...` and made browser speech more reliable by prewarming and caching the best Japanese voice before submit, so playback does not depend on an async first-call `voiceschanged` path.
+- 2026-04-15: Added a catch-all route redirect back to `/` so bad hash paths degrade to the curriculum view instead of rendering a blank screen, and covered that behavior in the router test.

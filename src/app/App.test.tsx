@@ -40,4 +40,31 @@ describe('App bootstrap', () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it('redirects unknown routes back to the curriculum view', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    } as Response);
+
+    render(
+      <AppStateProvider>
+        <MemoryRouter
+          initialEntries={['/not-a-real-route']}
+          future={{
+            v7_relativeSplatPath: true,
+            v7_startTransition: true,
+          }}
+        >
+          <App />
+        </MemoryRouter>
+      </AppStateProvider>,
+    );
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /curriculum overview/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

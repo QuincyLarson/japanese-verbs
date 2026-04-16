@@ -17,6 +17,7 @@ export function App() {
         <Route path="/stats" element={<StatsPage />} />
         <Route path="/settings" element={<Navigate to="/stats" replace />} />
         <Route path="/annex" element={<AnnexPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );

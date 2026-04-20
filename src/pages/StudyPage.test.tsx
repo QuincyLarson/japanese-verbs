@@ -92,6 +92,7 @@ describe('StudyPage', () => {
     expect(
       await screen.findByText(/correct! you'll see this again in 2 days\./i),
     ).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: /type pronunciation here/i })).not.toBeInTheDocument();
     expect(await screen.findByRole('button', { name: /hear again \[space\]/i })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: ' ', code: 'Space' });
@@ -100,7 +101,7 @@ describe('StudyPage', () => {
     expect(speakJapanese).toHaveBeenLastCalledWith('よむ');
   });
 
-  it('shows the guessed text in red-state copy when the answer is wrong', async () => {
+  it('keeps the typed guess editable after a wrong answer', async () => {
     renderStudyPage();
 
     fireEvent.change(screen.getByRole('textbox', { name: /type pronunciation here/i }), {
@@ -108,10 +109,25 @@ describe('StudyPage', () => {
     });
     fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
 
-    expect(
-      await screen.findByText((_, element) => element?.textContent === 'Incorrect. You guessed miru.'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/^Incorrect\.$/i)).toBeInTheDocument();
     expect(screen.getByText(/correct reading:/i)).toBeInTheDocument();
+    expect(screen.queryByText(/you guessed/i)).not.toBeInTheDocument();
+
+    const textbox = screen.getByRole('textbox', { name: /type pronunciation here/i });
+
+    expect(textbox).toHaveValue('miru');
+
+    fireEvent.change(textbox, {
+      target: { value: 'yomu' },
+    });
+
+    expect(textbox).toHaveValue('yomu');
+
+    fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
+
+    expect(screen.queryByText(/^Incorrect\.$/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /type pronunciation here/i })).toHaveValue('');
+    expect(screen.getByRole('button', { name: /submit \[enter\]/i })).toBeInTheDocument();
   });
 
   it('uses the section route parameter to show the matching section label', async () => {

@@ -47,6 +47,7 @@ export function StudyPage() {
   const [isRevealed, setIsRevealed] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState('');
   const [successDelayLabel, setSuccessDelayLabel] = useState<string>();
+  const [revealedIsCorrect, setRevealedIsCorrect] = useState<boolean | null>(null);
   const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
   const [canSpeak, setCanSpeak] = useState(() => canSpeakJapanese());
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -58,6 +59,7 @@ export function StudyPage() {
     setIsRevealed(false);
     setTypedAnswer('');
     setSuccessDelayLabel(undefined);
+    setRevealedIsCorrect(null);
   }, [sectionNumber]);
 
   const studyVerbs = useMemo(
@@ -149,7 +151,7 @@ export function StudyPage() {
     : [];
   const cleanedTypedAnswer = typedAnswer.trim();
   const typedAnswerMatches = currentCard ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading) : false;
-  const guessedLabel = cleanedTypedAnswer || 'nothing';
+  const showEditableInput = !isRevealed || revealedIsCorrect === false;
   const shouldShowSurfaceDetails =
     currentCard && (currentCard.surface.jp !== currentCard.entry.orthography || currentCard.formKey !== 'dictionary');
 
@@ -190,6 +192,7 @@ export function StudyPage() {
     }
 
     setSuccessDelayLabel(typedAnswerMatches ? formatDelayLabel(preview.dueAt, now) : undefined);
+    setRevealedIsCorrect(typedAnswerMatches);
     setIsRevealed(true);
   }
 
@@ -198,6 +201,7 @@ export function StudyPage() {
     setIsRevealed(false);
     setTypedAnswer('');
     setSuccessDelayLabel(undefined);
+    setRevealedIsCorrect(null);
   }
 
   function handleHearAgain() {
@@ -209,10 +213,10 @@ export function StudyPage() {
   }
 
   useEffect(() => {
-    if (!isRevealed) {
+    if (!isRevealed || revealedIsCorrect === false) {
       inputRef.current?.focus();
     }
-  }, [currentCard?.entry.id, currentCard?.formKey, isRevealed]);
+  }, [currentCard?.entry.id, currentCard?.formKey, isRevealed, revealedIsCorrect]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -264,7 +268,7 @@ export function StudyPage() {
                 {currentCard.surface.jp}
               </p>
               <div className="study-input-block stack-sm">
-                {!isRevealed ? (
+                {showEditableInput ? (
                   <>
                     <input
                       ref={inputRef}
@@ -279,9 +283,11 @@ export function StudyPage() {
                       type="text"
                       value={typedAnswer}
                     />
-                    <button className="block-link study-submit" onClick={handleSubmit} type="button">
-                      Submit [enter]
-                    </button>
+                    {!isRevealed ? (
+                      <button className="block-link study-submit" onClick={handleSubmit} type="button">
+                        Submit [enter]
+                      </button>
+                    ) : null}
                   </>
                 ) : null}
               </div>
@@ -290,6 +296,14 @@ export function StudyPage() {
             {isRevealed ? (
               <div className="answer-panel stack">
                 <div className="answer-copy stack-sm">
+                  {revealedIsCorrect && successDelayLabel ? (
+                    <p className="answer-line answer-line--success">
+                      Correct! You&apos;ll see this again in {successDelayLabel}.
+                    </p>
+                  ) : null}
+                  {revealedIsCorrect === false ? (
+                    <p className="answer-line answer-line--error">Incorrect.</p>
+                  ) : null}
                   <p className="answer-line">
                     <strong lang="ja">{currentCard.entry.orthography}</strong> - {currentCard.entry.reading} -{' '}
                     {currentCard.entry.englishPrimary}
@@ -300,17 +314,7 @@ export function StudyPage() {
                       ({FORM_PRESETS[currentCard.formKey].label})
                     </p>
                   ) : null}
-                  {typedAnswerMatches && successDelayLabel ? (
-                    <p className="answer-line answer-line--success">
-                      Correct! You&apos;ll see this again in {successDelayLabel}.
-                    </p>
-                  ) : null}
-                  {!typedAnswerMatches ? (
-                    <p className="answer-line answer-line--error">
-                      Incorrect. You guessed <strong>{guessedLabel}</strong>.
-                    </p>
-                  ) : null}
-                  {!typedAnswerMatches ? (
+                  {revealedIsCorrect === false ? (
                     <p className="answer-line">
                       Correct reading: <strong lang="ja">{currentCard.surface.reading}</strong>
                     </p>

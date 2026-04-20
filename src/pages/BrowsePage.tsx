@@ -1,5 +1,6 @@
 import { useDeferredValue, useMemo, useState, type FocusEvent } from 'react';
 import { useAppState } from '../app/AppState';
+import { formatEnglishDefinition } from '../lib/definitions';
 import { getFormLabel, searchVerbs } from '../lib/stats';
 import type { FormKey, VerbEntry } from '../types/verb';
 
@@ -169,7 +170,7 @@ export function BrowsePage() {
                         {entry.orthography}
                       </p>
                       <p className="index-popover__meta">
-                        {entry.reading} · {entry.englishPrimary}
+                        {entry.reading} · {formatEnglishDefinition(entry, verbs)}
                       </p>
                       <div className="index-popover__summaries">
                         <p className="index-popover__summary">

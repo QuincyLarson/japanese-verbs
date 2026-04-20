@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { FORM_ORDER } from '../lib/dataset';
+import { formatEnglishDefinition } from '../lib/definitions';
 import { DECK_SLICE_OPTIONS, FORM_PRESET_OPTIONS, POOL_MODE_OPTIONS } from '../lib/filters';
 import {
   calculateFormFamilyStats,
@@ -120,7 +121,7 @@ export function StatsPage() {
           {weakestVerbs.length > 0 ? (
             weakestVerbs.map((item) => (
               <li key={item.entry.id}>
-                <strong lang="ja">{item.entry.orthography}</strong> - {item.entry.reading} - {item.entry.englishPrimary}
+                <strong lang="ja">{item.entry.orthography}</strong> - {item.entry.reading} - {formatEnglishDefinition(item.entry, verbs)}
               </li>
             ))
           ) : (

@@ -4,6 +4,7 @@ import { useAppState } from '../app/AppState';
 import { getInflectionExplanation } from '../lib/conjugation';
 import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
+import { formatEnglishDefinition } from '../lib/definitions';
 import { getLessonLabel, getLessonTitle } from '../lib/lessons';
 import { getOrCreateProgress, previewGradeResult } from '../lib/progress';
 import { matchesReadingInput } from '../lib/romaji';
@@ -361,7 +362,7 @@ export function StudyPage() {
                   ) : null}
                   <p className="answer-line">
                     <strong lang="ja">{currentCard.entry.orthography}</strong> - {currentCard.entry.reading} -{' '}
-                    {currentCard.entry.englishPrimary}
+                    {formatEnglishDefinition(currentCard.entry, verbs)}
                   </p>
                   {shouldShowSurfaceDetails ? (
                     <p className="answer-line">

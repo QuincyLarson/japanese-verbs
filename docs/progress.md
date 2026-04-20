@@ -52,3 +52,4 @@
 - 2026-04-15: Tightened the revealed study-card layout for short laptop viewports by collapsing the post-submit verb block, reducing answer/action spacing, and adding a low-height media pass so the review state stays above the fold more reliably on an 11-inch MacBook Air-sized Chrome window.
 - 2026-04-15: Simplified the navbar theme toggle by removing the boxed Day/Night control and replacing it with a compact sun/moon icon switch that keeps the same accessible `switch` semantics.
 - 2026-04-15: Audited the implemented app against `docs/PRD.md` and wrote the remaining-work breakdown to `docs/prd-gap-action-plan.md`.
+- 2026-04-19: Reworked the narrow-screen navbar into a single-line brand row with theme icon plus hamburger toggle, and moved the nav links into a collapsible mobile menu so the header never wraps and consumes phone-height space.

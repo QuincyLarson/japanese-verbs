@@ -187,61 +187,71 @@ export function OverviewPage() {
             </div>
           </div>
           <ol className="unit-card__subsections" aria-label="Curriculum lessons">
-            {sections.map((section) => (
-              <li
-                key={section.id}
-                ref={(node) => {
-                  sectionRefs.current[section.index] = node;
-                }}
-                className={[
-                  'unit-card__subsection',
-                  section.completed ? 'is-completed' : '',
-                  section.skipped ? 'is-skipped' : '',
-                  section.isCurrent ? 'is-current' : '',
-                  celebratingSectionIndex === section.index ? 'is-celebrating' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                <div className="unit-card__rail" aria-hidden="true">
-                  <span
-                    className={[
-                      'unit-card__status',
-                      section.completed ? 'is-completed' : '',
-                      section.skipped ? 'is-skipped' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  >
-                    {section.completed ? <CheckIcon animate={celebratingSectionIndex === section.index} /> : section.skipped ? <SkipIcon /> : null}
-                    {celebratingSectionIndex === section.index ? (
-                      <span className="unit-card__confetti" aria-hidden="true">
-                        {Array.from({ length: 10 }, (_, confettiIndex) => (
-                          <span
-                            className={`unit-card__confetti-piece unit-card__confetti-piece--${(confettiIndex % 5) + 1}`}
-                            key={`${section.id}-confetti-${confettiIndex}`}
-                          />
-                        ))}
-                      </span>
+            {sections.map((section) => {
+              const lessonPath = getSectionStudyPath(section.index + 1);
+
+              return (
+                <li
+                  key={section.id}
+                  ref={(node) => {
+                    sectionRefs.current[section.index] = node;
+                  }}
+                  className={[
+                    'unit-card__subsection',
+                    section.completed ? 'is-completed' : '',
+                    section.skipped ? 'is-skipped' : '',
+                    section.isCurrent ? 'is-current' : '',
+                    celebratingSectionIndex === section.index ? 'is-celebrating' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  <div className="unit-card__rail" aria-hidden="true">
+                    <span
+                      className={[
+                        'unit-card__status',
+                        section.completed ? 'is-completed' : '',
+                        section.skipped ? 'is-skipped' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                    >
+                      {section.completed ? <CheckIcon animate={celebratingSectionIndex === section.index} /> : section.skipped ? <SkipIcon /> : null}
+                      {celebratingSectionIndex === section.index ? (
+                        <span className="unit-card__confetti" aria-hidden="true">
+                          {Array.from({ length: 10 }, (_, confettiIndex) => (
+                            <span
+                              className={`unit-card__confetti-piece unit-card__confetti-piece--${(confettiIndex % 5) + 1}`}
+                              key={`${section.id}-confetti-${confettiIndex}`}
+                            />
+                          ))}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="unit-card__step">{section.index + 1}</span>
+                  </div>
+                  <div className="unit-card__copy">
+                    <h3 className="unit-card__title-row">
+                      <Link className="unit-card__link" to={lessonPath}>
+                        {getLessonLabel(section.index + 1)}
+                      </Link>
+                      {section.completed ? <span className="unit-card__badge">Completed</span> : null}
+                      {section.skipped ? <span className="unit-card__badge">Skipped</span> : null}
+                      {section.isCurrent ? <span className="unit-card__badge unit-card__badge--current">You are here</span> : null}
+                    </h3>
+                    <p>{section.preview}</p>
+                    <p className="unit-card__progress-copy">
+                      {section.completedCount}/{section.entries.length} cards cleared
+                    </p>
+                    {section.isCurrent ? (
+                      <Link className="block-link unit-card__start-link" to={lessonPath}>
+                        Start Lesson [enter]
+                      </Link>
                     ) : null}
-                  </span>
-                  <span className="unit-card__step">{String(section.index + 1).padStart(3, '0')}</span>
-                </div>
-                <div className="unit-card__copy">
-                  <h3 className="unit-card__title-row">
-                    <Link className="unit-card__link" to={getSectionStudyPath(section.index + 1)}>
-                      {getLessonLabel(section.index + 1)}
-                    </Link>
-                    {section.completed ? <span className="unit-card__badge">Completed</span> : null}
-                    {section.skipped ? <span className="unit-card__badge">Skipped</span> : null}
-                  </h3>
-                  <p>{section.preview}</p>
-                  <p className="unit-card__progress-copy">
-                    {section.completedCount}/{section.entries.length} cards cleared
-                  </p>
-                </div>
-              </li>
-            ))}
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </section>

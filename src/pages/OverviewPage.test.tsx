@@ -74,9 +74,36 @@ describe('OverviewPage', () => {
 
     expect(await screen.findByRole('heading', { name: /curriculum overview/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /lesson 1/i })).toBeInTheDocument();
+    expect(screen.getByText(/you are here/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /start lesson \[enter\]/i })).toHaveAttribute('href', '/study/section/1');
 
     fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
 
     expect(screen.getByTestId('location')).toHaveTextContent('/study/section/1');
+  });
+
+  it('moves the current lesson marker and start button to the next lesson after a completion', async () => {
+    const settingsStore = createDefaultSettingsStore();
+
+    settingsStore.curriculum.completedSectionIndexes = [0];
+
+    mockUseAppState.mockReturnValue({
+      verbs: Array.from({ length: 12 }, (_, index) => buildVerb(index)),
+      catalogStatus: 'ready',
+      settingsStore,
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<OverviewPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole('heading', { name: /curriculum overview/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /start lesson \[enter\]/i })).toHaveAttribute('href', '/study/section/2');
+    expect(screen.getByRole('link', { name: /lesson 2/i })).toBeInTheDocument();
+    expect(screen.getByText(/you are here/i)).toBeInTheDocument();
   });
 });

@@ -2,6 +2,101 @@ type VoiceLike = Pick<SpeechSynthesisVoice, 'default' | 'lang' | 'localService' 
 
 type SpeechPlatform = 'android' | 'apple' | 'windows' | 'other';
 
+const SMALL_KANA = new Set([
+  'ゃ',
+  'ゅ',
+  'ょ',
+  'ぁ',
+  'ぃ',
+  'ぅ',
+  'ぇ',
+  'ぉ',
+  'ゎ',
+  'ャ',
+  'ュ',
+  'ョ',
+  'ァ',
+  'ィ',
+  'ゥ',
+  'ェ',
+  'ォ',
+  'ヮ',
+]);
+const VOICELESS_ONSET_KANA = new Set([
+  'か',
+  'き',
+  'く',
+  'け',
+  'こ',
+  'さ',
+  'し',
+  'す',
+  'せ',
+  'そ',
+  'た',
+  'ち',
+  'つ',
+  'て',
+  'と',
+  'は',
+  'ひ',
+  'ふ',
+  'へ',
+  'ほ',
+  'ぱ',
+  'ぴ',
+  'ぷ',
+  'ぺ',
+  'ぽ',
+  'カ',
+  'キ',
+  'ク',
+  'ケ',
+  'コ',
+  'サ',
+  'シ',
+  'ス',
+  'セ',
+  'ソ',
+  'タ',
+  'チ',
+  'ツ',
+  'テ',
+  'ト',
+  'ハ',
+  'ヒ',
+  'フ',
+  'ヘ',
+  'ホ',
+  'パ',
+  'ピ',
+  'プ',
+  'ペ',
+  'ポ',
+]);
+const DEVOICEABLE_MORA = new Set([
+  'き',
+  'く',
+  'し',
+  'す',
+  'ち',
+  'つ',
+  'ひ',
+  'ふ',
+  'ぴ',
+  'ぷ',
+  'キ',
+  'ク',
+  'シ',
+  'ス',
+  'チ',
+  'ツ',
+  'ヒ',
+  'フ',
+  'ピ',
+  'プ',
+]);
+
 const PLATFORM_VOICE_NAMES: Record<SpeechPlatform, string[]> = {
   apple: ['kyoko', 'otoya', 'siri kyoko', 'siri otoya', 'eddy', 'flo', 'reed', 'rocko', 'sandy', 'shelley'],
   android: ['google 日本語', 'google japanese', 'google 日本人', '日本語', 'ja-jp-x-jad-local', 'ja-jp-x-jac-local'],
@@ -17,6 +112,56 @@ let lastSpeakText = '';
 
 function hasSpeechSupport() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+}
+
+function toKatakana(text: string) {
+  return text.replace(/[\u3041-\u3096]/g, (character) =>
+    String.fromCharCode(character.charCodeAt(0) + 0x60),
+  );
+}
+
+function isKanaOnly(text: string) {
+  return /^[\u3041-\u3096\u30A1-\u30FAー]+$/.test(text);
+}
+
+function splitIntoMora(text: string) {
+  const morae: string[] = [];
+
+  for (const character of text) {
+    if (SMALL_KANA.has(character) && morae.length > 0) {
+      morae[morae.length - 1] += character;
+      continue;
+    }
+
+    morae.push(character);
+  }
+
+  return morae;
+}
+
+function beginsWithVoicelessKana(mora: string) {
+  return VOICELESS_ONSET_KANA.has(mora[0] ?? '');
+}
+
+function shouldInsertLearnerPause(currentMora: string, nextMora: string | undefined) {
+  if (!nextMora) {
+    return false;
+  }
+
+  return DEVOICEABLE_MORA.has(currentMora) && beginsWithVoicelessKana(nextMora);
+}
+
+export function formatJapaneseSpeechText(text: string) {
+  if (!isKanaOnly(text)) {
+    return text;
+  }
+
+  const katakanaText = toKatakana(text);
+  const morae = splitIntoMora(katakanaText);
+
+  return morae
+    .map((mora, index) => (shouldInsertLearnerPause(mora, morae[index + 1]) ? `${mora} ` : mora))
+    .join('');
 }
 
 function getPlatformHint(userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent): SpeechPlatform {
@@ -102,7 +247,7 @@ function speakNow(text: string) {
   const synth = window.speechSynthesis;
   const voices = synth.getVoices();
   const voice = selectBestJapaneseVoice(voices) ?? cachedJapaneseVoice;
-  const utterance = new SpeechSynthesisUtterance(text);
+  const utterance = new SpeechSynthesisUtterance(formatJapaneseSpeechText(text));
 
   utterance.lang = 'ja-JP';
   utterance.rate = 0.92;

@@ -1,4 +1,4 @@
-import { createEmptyProgressStore, previewGradeResult, recordGrade } from './progress';
+import { createEmptyProgressStore, isTroubleItem, previewGradeResult, recordGrade } from './progress';
 
 describe('recordGrade', () => {
   it('records a correct review and updates interval state', () => {
@@ -43,5 +43,16 @@ describe('recordGrade', () => {
 
     expect(preview.intervalDays).toBeGreaterThanOrEqual(4);
     expect(Date.parse(preview.dueAt)).toBeGreaterThan(Date.parse(store.items['食べる'].dueAt));
+  });
+
+  it('flags persistent low-accuracy verbs as trouble items', () => {
+    let store = createEmptyProgressStore();
+
+    for (let index = 0; index < 3; index += 1) {
+      store = recordGrade(store, '食べる', 'dictionary', 'again', new Date(`2026-04-15T12:0${index}:00.000Z`));
+      store = recordGrade(store, '食べる', 'dictionary', 'good', new Date(`2026-04-15T12:1${index}:00.000Z`));
+    }
+
+    expect(isTroubleItem(store.items['食べる'])).toBe(true);
   });
 });

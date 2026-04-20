@@ -63,7 +63,8 @@ export type DeckSlice =
   | 'burned-hidden'
   | 'burned-only'
   | 'weak'
-  | 'recent-mistakes';
+  | 'recent-mistakes'
+  | 'trouble';
 
 export type FormPresetId =
   | 'mixed-review'

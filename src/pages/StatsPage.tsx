@@ -1,9 +1,34 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
-import { calculateOverviewStats, listWeakestVerbs } from '../lib/stats';
+import { FORM_ORDER } from '../lib/dataset';
+import { DECK_SLICE_OPTIONS, FORM_PRESET_OPTIONS, POOL_MODE_OPTIONS } from '../lib/filters';
+import {
+  calculateFormFamilyStats,
+  calculateOverviewStats,
+  calculateTePatternStats,
+  getFormLabel,
+  getTePatternLabel,
+  listWeakestVerbs,
+} from '../lib/stats';
+
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
 
 export function StatsPage() {
-  const { verbs, catalogStatus, progressStore, exportPayload, importPayload, resetProgress } = useAppState();
+  const {
+    verbs,
+    catalogStatus,
+    progressStore,
+    settingsStore,
+    setStudySettings,
+    applyStudyPreset,
+    toggleStudyForm,
+    exportPayload,
+    importPayload,
+    resetProgress,
+  } = useAppState();
   const [message, setMessage] = useState<string>();
   const [importText, setImportText] = useState('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -19,6 +44,16 @@ export function StatsPage() {
 
   const overview = calculateOverviewStats(verbs, progressStore);
   const weakestVerbs = listWeakestVerbs(verbs, progressStore, 5);
+  const formFamilyStats = calculateFormFamilyStats(verbs, progressStore)
+    .sort((left, right) => {
+      if (left.accuracy !== right.accuracy) {
+        return left.accuracy - right.accuracy;
+      }
+
+      return right.attempts - left.attempts;
+    })
+    .slice(0, 6);
+  const tePatternStats = calculateTePatternStats(verbs, progressStore).slice(0, 5);
 
   function handleExport() {
     const payload = exportPayload();
@@ -92,6 +127,133 @@ export function StatsPage() {
             <li>No weak verbs yet. Study a few rounds first.</li>
           )}
         </ul>
+      </section>
+
+      <section className="panel stack">
+        <p className="eyebrow">Weak conjugation families</p>
+        {formFamilyStats.length > 0 ? (
+          <div className="metric-list" role="list" aria-label="Weakest conjugation families">
+            {formFamilyStats.map((row) => (
+              <div className="metric-row" key={row.formKey} role="listitem">
+                <div>
+                  <p className="metric-row__title">{row.label}</p>
+                  <p className="metric-row__meta">
+                    {row.attempts} attempts across {row.verbsSeen} verbs
+                  </p>
+                </div>
+                <strong>{formatPercent(row.accuracy)}</strong>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="muted-text">Conjugation-family stats will appear after a few reviews.</p>
+        )}
+      </section>
+
+      <section className="panel stack">
+        <p className="eyebrow">Weakest て-form patterns</p>
+        {tePatternStats.length > 0 ? (
+          <div className="metric-list" role="list" aria-label="Weakest te-form patterns">
+            {tePatternStats.map((row) => (
+              <div className="metric-row" key={row.pattern} role="listitem">
+                <div>
+                  <p className="metric-row__title">{getTePatternLabel(row.pattern)}</p>
+                  <p className="metric-row__meta">{row.attempts} て-form attempts</p>
+                </div>
+                <strong>{formatPercent(row.accuracy)}</strong>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="muted-text">て-form weakness patterns will appear after te-form reviews.</p>
+        )}
+      </section>
+
+      <section className="panel stack">
+        <p className="eyebrow">Study modes</p>
+        <div className="study-controls__grid">
+          <label className="field-stack">
+            <span className="label">Verb pool</span>
+            <select
+              className="text-input select-input"
+              onChange={(event) =>
+                setStudySettings((current) => ({
+                  ...current,
+                  poolMode: event.target.value as (typeof settingsStore.study.poolMode),
+                }))
+              }
+              value={settingsStore.study.poolMode}
+            >
+              {POOL_MODE_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="field-stack">
+            <span className="label">Scheduling</span>
+            <select
+              className="text-input select-input"
+              onChange={(event) =>
+                setStudySettings((current) => ({
+                  ...current,
+                  deckSlice: event.target.value as (typeof settingsStore.study.deckSlice),
+                }))
+              }
+              value={settingsStore.study.deckSlice}
+            >
+              {DECK_SLICE_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="field-stack">
+            <span className="label">Form bundle</span>
+            <select
+              className="text-input select-input"
+              onChange={(event) => applyStudyPreset(event.target.value as (typeof settingsStore.study.formPresetId))}
+              value={settingsStore.study.formPresetId}
+            >
+              {FORM_PRESET_OPTIONS.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {settingsStore.study.formPresetId === 'custom' ? (
+          <div className="field-stack">
+            <span className="label">Custom forms</span>
+            <div className="segmented-row">
+              {FORM_ORDER.map((formKey) => {
+                const isActive = settingsStore.study.customForms.includes(formKey);
+
+                return (
+                  <button
+                    key={formKey}
+                    aria-pressed={isActive}
+                    className={isActive ? 'filter-chip is-active' : 'filter-chip'}
+                    onClick={() => toggleStudyForm(formKey)}
+                    type="button"
+                  >
+                    {getFormLabel(formKey)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        <Link className="action-button action-button--primary" to="/study">
+          Start selected session
+        </Link>
       </section>
 
       <section className="panel stack">

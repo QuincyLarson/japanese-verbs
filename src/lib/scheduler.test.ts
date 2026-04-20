@@ -129,4 +129,25 @@ describe('createStudySnapshot', () => {
     expect(['食べる', '読む']).toContain(snapshot.nextCard?.entry.masteryKey);
     expect(snapshot.nextCard?.entry.masteryKey).not.toBe('居る');
   });
+
+  it('can isolate trouble items through the dedicated deck slice', () => {
+    let store = createEmptyProgressStore();
+
+    for (let index = 0; index < 3; index += 1) {
+      store = recordGrade(store, '食べる', 'dictionary', 'again', new Date(`2026-04-15T12:0${index}:00.000Z`));
+      store = recordGrade(store, '食べる', 'dictionary', 'good', new Date(`2026-04-15T12:1${index}:00.000Z`));
+    }
+
+    const snapshot = createStudySnapshot(
+      VERBS,
+      store,
+      {
+        ...BASE_SETTINGS,
+        deckSlice: 'trouble',
+      },
+      new Date('2026-04-15T13:00:00.000Z'),
+    );
+
+    expect(snapshot.nextCard?.entry.masteryKey).toBe('食べる');
+  });
 });

@@ -3,6 +3,7 @@ import { STARTER_PRIORITY } from './curriculum';
 import { resolveFormSelection } from './filters';
 import {
   getOrCreateProgress,
+  isTroubleItem,
   getWeaknessScore,
   hasRecentMistake,
   isBurned,
@@ -161,6 +162,10 @@ function matchesDeckSlice(
 
   if (deckSlice === 'weak') {
     return getWeaknessScore(progress) >= 0.45;
+  }
+
+  if (deckSlice === 'trouble') {
+    return isTroubleItem(progress);
   }
 
   return hasRecentMistake(progress, now);

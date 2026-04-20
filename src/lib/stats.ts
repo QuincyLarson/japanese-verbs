@@ -135,6 +135,23 @@ export function calculateTePatternStats(verbs: VerbEntry[], progressStore: Progr
     .sort((left, right) => left.accuracy - right.accuracy);
 }
 
+const TE_PATTERN_LABELS: Record<string, string> = {
+  'ichidan-て': 'Ichidan て',
+  'godan-って': 'Godan って',
+  'godan-んで': 'Godan んで',
+  'godan-いて': 'Godan いて',
+  'godan-いで': 'Godan いで',
+  'godan-して': 'Godan して',
+  'godan-行く-って': '行く special って',
+  'irregular-kuru': 'くる irregular',
+  'aru-って': 'ある special って',
+  'honorific-aru-って': 'Honorific ある って',
+};
+
+export function getTePatternLabel(pattern: string) {
+  return TE_PATTERN_LABELS[pattern] ?? pattern;
+}
+
 export function listWeakestVerbs(verbs: VerbEntry[], progressStore: ProgressStore, limit = 8) {
   return verbs
     .map((entry) => {

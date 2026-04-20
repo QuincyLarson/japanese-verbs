@@ -27,6 +27,8 @@
 - `feat: add persistent curriculum section completion flow`
 - `refactor: adopt clean path routing`
 - `fix: harden local progress persistence`
+- `feat: expand stats and index detail coverage`
+- `feat: add study mode picker and trouble mode`
 
 ## Session Log
 
@@ -63,3 +65,5 @@
 - 2026-04-19: Reworked section study into a persistent local stack that only completes after every card is answered correctly, moves misses to the back of the queue, restores partial section progress for returning users, records section reviews into the shared endless-mode scheduler, and returns completed sections to the curriculum with a centered checkmark/confetti celebration instead of an empty-state page.
 - 2026-04-19: Replaced hash/query-based study routing with clean browser paths such as `/study/section/3`, migrated section-completion return state off query params, added legacy hash URL rewriting for old links, and added a static 404 redirect shim so direct deep links still boot on static hosting.
 - 2026-04-19: Hardened local progress persistence by moving `progressStore` and `settingsStore` writes to layout-time effects and added a remount test that verifies completed curriculum sections survive a localStorage round-trip.
+- 2026-04-19: Expanded the Stats page with weak conjugation-family and て-form-pattern reporting, expanded the Index popover to show full glosses, alternate readings, and all enabled forms, and refreshed `docs/prd-gap-action-plan.md` to reflect the remaining MVP gaps against the PRD.
+- 2026-04-19: Added a discoverable study-modes panel to the Stats page, exposed the existing pool/scheduling/form filters plus custom form selection, added a deterministic trouble-items study mode to the scheduler, and refreshed `docs/prd-gap-action-plan.md` so the study-loop/spec mismatch is now the main remaining MVP gap.

@@ -81,6 +81,14 @@ export function getWeaknessScore(progress?: ReviewProgress): number {
   return inaccuracy + lapseBias;
 }
 
+export function isTroubleItem(progress?: ReviewProgress): boolean {
+  if (!progress || progress.totalSeen < 6) {
+    return false;
+  }
+
+  return progress.lapses >= 3 && getWeaknessScore(progress) >= 0.55;
+}
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }

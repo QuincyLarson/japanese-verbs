@@ -11,6 +11,36 @@ function getVerbCharacterCount(value: string) {
   return Array.from(value.replace(/\s+/g, '')).length;
 }
 
+function formatVerbClassLabel(value: VerbEntry['verbClass']) {
+  switch (value) {
+    case 'ichidan':
+      return 'Ichidan';
+    case 'godan':
+      return 'Godan';
+    case 'kuru':
+      return 'Kuru';
+    case 'aru_irregular':
+      return 'ある irregular';
+    case 'honorific_aru':
+      return 'Honorific ある';
+    default:
+      return value;
+  }
+}
+
+function formatTransitivityLabel(value: VerbEntry['transitivity']) {
+  switch (value) {
+    case 'transitive':
+      return 'Transitive';
+    case 'intransitive':
+      return 'Intransitive';
+    case 'both':
+      return 'Both';
+    default:
+      return 'Unspecified';
+  }
+}
+
 export function BrowsePage() {
   const { verbs, catalogStatus } = useAppState();
   const [query, setQuery] = useState('');
@@ -82,12 +112,15 @@ export function BrowsePage() {
           >
             {groups[group].map((entry) => {
               const isActive = activeVerbId === entry.id;
-              const glossaryPreview = entry.englishGlosses.slice(0, 3).join(' / ');
-              const sampleForms = (['dictionary', 'te', 'past'] as FormKey[])
-                .map((formKey) => entry.forms[formKey])
-                .filter((value): value is NonNullable<typeof value> => Boolean(value))
-                .map((value) => value.jp)
-                .join(' · ');
+              const availableForms = entry.allowedInflections
+                .map((formKey) => ({
+                  formKey,
+                  surface: entry.forms[formKey],
+                }))
+                .filter(
+                  (value): value is { formKey: FormKey; surface: NonNullable<VerbEntry['forms'][FormKey]> } =>
+                    Boolean(value.surface),
+                );
 
               return (
                 <div
@@ -139,25 +172,39 @@ export function BrowsePage() {
                         {entry.reading} · {entry.englishPrimary}
                       </p>
                       <div className="index-popover__summaries">
-                        <p className="index-popover__summary">{glossaryPreview}</p>
                         <p className="index-popover__summary">
-                          {entry.verbClass} · {entry.transitivity} · rank {entry.bccwjRank}
+                          {formatVerbClassLabel(entry.verbClass)} · {formatTransitivityLabel(entry.transitivity)} · rank{' '}
+                          {entry.bccwjRank}
                         </p>
                       </div>
-                      <p className="index-popover__origin">
-                        Forms: {sampleForms || 'dictionary only'}
-                      </p>
+                      <div className="index-popover__section">
+                        <p className="index-popover__section-label">Glosses</p>
+                        <p className="index-popover__summary">{entry.englishGlosses.join(' / ')}</p>
+                      </div>
                       {entry.sameSpellingOtherReadings.length > 0 ? (
-                        <p className="index-popover__origin">
-                          Alternate reading: {entry.sameSpellingOtherReadings[0].reading}
-                        </p>
+                        <div className="index-popover__section">
+                          <p className="index-popover__section-label">Alternate readings</p>
+                          <div className="index-popover__reading-list">
+                            {entry.sameSpellingOtherReadings.map((reading) => (
+                              <p className="index-popover__origin" key={`${entry.id}-${reading.reading}`}>
+                                {reading.reading} · {reading.english_primary}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
                       ) : null}
-                      <div className="pill-wrap">
-                        {entry.allowedInflections.slice(0, 6).map((formKey) => (
-                          <span className="pill" key={`${entry.id}-${formKey}`}>
-                            {getFormLabel(formKey)}
-                          </span>
-                        ))}
+                      <div className="index-popover__section">
+                        <p className="index-popover__section-label">Forms</p>
+                        <div className="index-popover__forms">
+                          {availableForms.map(({ formKey, surface }) => (
+                            <div className="index-popover__form-row" key={`${entry.id}-${formKey}`}>
+                              <span className="index-popover__form-label">{getFormLabel(formKey)}</span>
+                              <span className="index-popover__form-value" lang="ja">
+                                {surface.jp} · {surface.reading}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ) : null}

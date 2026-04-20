@@ -57,6 +57,7 @@ export const DECK_SLICE_OPTIONS: Array<{ id: DeckSlice; label: string }> = [
   { id: 'burned-only', label: 'Burned only' },
   { id: 'weak', label: 'Weak' },
   { id: 'recent-mistakes', label: 'Recent mistakes' },
+  { id: 'trouble', label: 'Trouble items' },
 ];
 
 export const DEFAULT_STUDY_SETTINGS: StudySettings = {

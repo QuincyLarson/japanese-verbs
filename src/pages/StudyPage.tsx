@@ -41,6 +41,7 @@ export function StudyPage() {
   const [typedAnswer, setTypedAnswer] = useState('');
   const [successDelayLabel, setSuccessDelayLabel] = useState<string>();
   const [revealedIsCorrect, setRevealedIsCorrect] = useState<boolean | null>(null);
+  const [pendingCompletedSectionIndex, setPendingCompletedSectionIndex] = useState<number | null>(null);
   const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
   const [canSpeak, setCanSpeak] = useState(() => canSpeakJapanese());
   const [isTightViewport, setIsTightViewport] = useState(() => isTightStudyViewport());
@@ -56,6 +57,7 @@ export function StudyPage() {
     setTypedAnswer('');
     setSuccessDelayLabel(undefined);
     setRevealedIsCorrect(null);
+    setPendingCompletedSectionIndex(null);
   }, [sectionNumber]);
 
   const studyVerbs = useMemo(
@@ -200,13 +202,7 @@ export function StudyPage() {
       );
 
       if (typedAnswerMatches && sectionResult.completed) {
-        navigate('/', {
-          replace: true,
-          state: {
-            completedSectionIndex: sectionIndex,
-          },
-        });
-        return;
+        setPendingCompletedSectionIndex(sectionIndex);
       }
     }
 
@@ -217,6 +213,16 @@ export function StudyPage() {
 
   function handleNextVerb() {
     if (revealedIsCorrect === false && !typedAnswerMatches) {
+      return;
+    }
+
+    if (pendingCompletedSectionIndex !== null) {
+      navigate('/', {
+        replace: true,
+        state: {
+          completedSectionIndex: pendingCompletedSectionIndex,
+        },
+      });
       return;
     }
 

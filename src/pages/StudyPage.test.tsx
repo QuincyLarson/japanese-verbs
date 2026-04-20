@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { ensureSectionSession } from '../lib/curriculumProgress';
 import { createEmptyProgressStore } from '../lib/progress';
 import { getSectionStudyPath } from '../lib/routes';
 import { createDefaultSettingsStore } from '../lib/storage';
@@ -68,7 +69,7 @@ describe('StudyPage', () => {
     });
   });
 
-  function renderStudyPage(initialEntry = '/study') {
+function renderStudyPage(initialEntry = '/study') {
     return render(
       <MemoryRouter initialEntries={[initialEntry]}>
         <Routes>
@@ -77,6 +78,12 @@ describe('StudyPage', () => {
         </Routes>
       </MemoryRouter>,
     );
+  }
+
+  function LocationProbe() {
+    const location = useLocation();
+
+    return <output data-testid="location">{location.pathname}</output>;
   }
 
   it('replays the current verb with the spacebar after reveal', async () => {
@@ -145,5 +152,43 @@ describe('StudyPage', () => {
     expect(screen.getByRole('link', { name: /curriculum/i })).toHaveAttribute('href', '/');
     expect(screen.getByText('Lesson 1')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /essential everyday verbs/i })).toBeInTheDocument();
+  });
+
+  it('reveals the final lesson card before returning to the curriculum', async () => {
+    const settingsStore = createDefaultSettingsStore();
+
+    settingsStore.curriculum = ensureSectionSession(settingsStore.curriculum, 0, [mockVerb.masteryKey]);
+
+    mockUseAppState.mockReturnValue({
+      verbs: [mockVerb],
+      catalogStatus: 'ready',
+      progressStore: createEmptyProgressStore(),
+      settingsStore,
+      applyStudyPreset: vi.fn(),
+      ensureCurriculumSectionSession: vi.fn(),
+      recordCurriculumSectionAttempt: vi.fn(() => ({ completed: true })),
+      recordReview: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={[getSectionStudyPath(1)]}>
+        <Routes>
+          <Route path="/" element={<LocationProbe />} />
+          <Route path="/study/section/:sectionNumber" element={<StudyPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.change(await screen.findByRole('textbox', { name: /type pronunciation here/i }), {
+      target: { value: 'yomu' },
+    });
+    fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
+
+    expect(await screen.findByText(/correct! you'll see this again in 2 days\./i)).toBeInTheDocument();
+    expect(screen.queryByTestId('location')).not.toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
+
+    expect(screen.getByTestId('location')).toHaveTextContent('/');
   });
 });

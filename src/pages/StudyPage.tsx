@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { getInflectionExplanation } from '../lib/conjugation';
 import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
-import { getPresetFromSearchParam } from '../lib/filters';
 import { getOrCreateProgress, previewGradeResult } from '../lib/progress';
 import { matchesReadingInput } from '../lib/romaji';
+import { parsePositiveRouteNumber } from '../lib/routes';
 import { canSpeakJapanese, primeJapaneseVoices, speakJapanese } from '../lib/speech';
 import { FORM_PRESETS } from '../lib/dataset';
 import { createStudySnapshot, getScheduledCardForEntry, type ScheduledCard } from '../lib/scheduler';
@@ -38,33 +38,27 @@ export function StudyPage() {
     catalogStatus,
     progressStore,
     settingsStore,
-    applyStudyPreset,
     ensureCurriculumSectionSession,
     recordCurriculumSectionAttempt,
     recordReview,
   } = useAppState();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const { sectionNumber } = useParams<{ sectionNumber?: string }>();
   const [isRevealed, setIsRevealed] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState('');
   const [successDelayLabel, setSuccessDelayLabel] = useState<string>();
   const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
   const [canSpeak, setCanSpeak] = useState(() => canSpeakJapanese());
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const presetFromUrl = getPresetFromSearchParam(searchParams.get('preset'));
-  const sectionParam = searchParams.get('section');
-  const selectedSection = sectionParam ? Number.parseInt(sectionParam, 10) : null;
-  const sectionIndex = selectedSection && Number.isFinite(selectedSection) && selectedSection > 0 ? selectedSection - 1 : null;
+  const selectedSection = parsePositiveRouteNumber(sectionNumber);
+  const sectionIndex = selectedSection !== null ? selectedSection - 1 : null;
 
   useEffect(() => {
-    if (presetFromUrl) {
-      applyStudyPreset(presetFromUrl);
-    }
     setActiveCard(null);
     setIsRevealed(false);
     setTypedAnswer('');
     setSuccessDelayLabel(undefined);
-  }, [presetFromUrl, sectionParam]);
+  }, [sectionNumber]);
 
   const studyVerbs = useMemo(
     () =>
@@ -185,7 +179,12 @@ export function StudyPage() {
       );
 
       if (typedAnswerMatches && sectionResult.completed) {
-        navigate(`/?completedSection=${sectionIndex + 1}`, { replace: true });
+        navigate('/', {
+          replace: true,
+          state: {
+            completedSectionIndex: sectionIndex,
+          },
+        });
         return;
       }
     }

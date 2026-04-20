@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { createEmptyProgressStore } from '../lib/progress';
+import { getSectionStudyPath } from '../lib/routes';
 import { createDefaultSettingsStore } from '../lib/storage';
 import type { VerbEntry } from '../types/verb';
 import { StudyPage } from './StudyPage';
@@ -67,12 +68,19 @@ describe('StudyPage', () => {
     });
   });
 
-  it('replays the current verb with the spacebar after reveal', async () => {
-    render(
-      <MemoryRouter initialEntries={['/study']}>
-        <StudyPage />
+  function renderStudyPage(initialEntry = '/study') {
+    return render(
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <Routes>
+          <Route path="/study" element={<StudyPage />} />
+          <Route path="/study/section/:sectionNumber" element={<StudyPage />} />
+        </Routes>
       </MemoryRouter>,
     );
+  }
+
+  it('replays the current verb with the spacebar after reveal', async () => {
+    renderStudyPage();
 
     fireEvent.change(screen.getByRole('textbox', { name: /type pronunciation here/i }), {
       target: { value: 'yomu' },
@@ -93,11 +101,7 @@ describe('StudyPage', () => {
   });
 
   it('shows the guessed text in red-state copy when the answer is wrong', async () => {
-    render(
-      <MemoryRouter initialEntries={['/study']}>
-        <StudyPage />
-      </MemoryRouter>,
-    );
+    renderStudyPage();
 
     fireEvent.change(screen.getByRole('textbox', { name: /type pronunciation here/i }), {
       target: { value: 'miru' },
@@ -108,5 +112,12 @@ describe('StudyPage', () => {
       await screen.findByText((_, element) => element?.textContent === 'Incorrect. You guessed miru.'),
     ).toBeInTheDocument();
     expect(screen.getByText(/correct reading:/i)).toBeInTheDocument();
+  });
+
+  it('uses the section route parameter to show the matching section label', async () => {
+    renderStudyPage(getSectionStudyPath(1));
+
+    expect(await screen.findByText(/loading section stack/i)).toBeInTheDocument();
+    expect(screen.getAllByText('Section 001')).toHaveLength(2);
   });
 });

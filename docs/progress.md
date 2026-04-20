@@ -25,6 +25,7 @@
 - `feat: add local progress and review workspace`
 - `test: add review checklist and polish`
 - `feat: add persistent curriculum section completion flow`
+- `refactor: adopt clean path routing`
 
 ## Session Log
 
@@ -42,7 +43,7 @@
 - 2026-04-15: Reworked the flash-card interaction to use typed reading input, collapsed grading to `I know it` and `I don't know it`, and added interval feedback after each review with lightweight hiragana/romaji answer matching.
 - 2026-04-15: Switched the main lesson route to an adaptive typed-answer flow with `Submit [enter]`, `Next verb [enter]`, automatic correctness grading from the typed pronunciation, voice synthesis on submit with a `Hear again` control, and randomized top-window card selection with starter bias so new sessions begin on more useful print-first verbs.
 - 2026-04-15: Rebuilt the home route into 10-card curriculum sections driven by shared curriculum ordering, renamed the main nav action to `Next verb`, and added completed and skipped section states with check and curved-arrow status icons.
-- 2026-04-15: Restored direct curriculum jumping by making each section on the home view link into `/study?section=n`, and taught the adaptive study route to scope its queue to the selected section when that parameter is present.
+- 2026-04-15: Restored direct curriculum jumping by making each section on the home view link into a dedicated section study route, and taught the adaptive study route to scope its queue to the selected curriculum section.
 - 2026-04-15: Aligned the shell and lesson input more closely to freeCodeCamp styling by switching to a Lato + Hack-ZeroSlash stack, updating the core gray/yellow/navy token palette, matching hotkey label color to button text, and hiding the pronunciation helper after the first 10 reviews so later sessions show only the centered input cursor.
 - 2026-04-15: Moved the interval feedback line into the revealed action row between `Hear again` and `Next verb`, forced that feedback block to stay centered independently of neighboring buttons, and shortened the onboarding helper so it only appears for the first few reviews.
 - 2026-04-15: Replaced the naive speech hook with platform-aware Japanese voice selection that waits for `speechSynthesis.getVoices()`, ranks Apple/Google/Microsoft Japanese voices by browser platform, and falls back cleanly when the voice list arrives late on first use.
@@ -59,3 +60,4 @@
 - 2026-04-19: Simplified the challenge card by removing the adaptive helper copy from the active prompt state, changing the input prompt to `Type pronunciation here`, enlarging the Japanese form, and constraining the input block so it stays inside the card margins on narrow screens.
 - 2026-04-19: Replaced the revealed-state feedback banner with inline result copy so correct answers read `Correct! You'll see this again in ...`, while incorrect answers show `Incorrect. You guessed ...` in red above the correct reading.
 - 2026-04-19: Reworked section study into a persistent local stack that only completes after every card is answered correctly, moves misses to the back of the queue, restores partial section progress for returning users, records section reviews into the shared endless-mode scheduler, and returns completed sections to the curriculum with a centered checkmark/confetti celebration instead of an empty-state page.
+- 2026-04-19: Replaced hash/query-based study routing with clean browser paths such as `/study/section/3`, migrated section-completion return state off query params, added legacy hash URL rewriting for old links, and added a static 404 redirect shim so direct deep links still boot on static hosting.

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { AppLayout } from './AppLayout';
+import { getSectionStudyPath } from '../lib/routes';
 
 const setThemePreference = vi.fn();
 
@@ -17,7 +18,7 @@ function StudyProbe() {
   const navigate = useNavigate();
 
   return (
-    <button onClick={() => navigate('/study?section=2')} type="button">
+    <button onClick={() => navigate(getSectionStudyPath(2))} type="button">
       Go to section 2
     </button>
   );
@@ -39,7 +40,7 @@ describe('AppLayout', () => {
 
     render(
       <MemoryRouter
-        initialEntries={['/study?section=1']}
+        initialEntries={[getSectionStudyPath(1)]}
         future={{
           v7_relativeSplatPath: true,
           v7_startTransition: true,
@@ -47,7 +48,7 @@ describe('AppLayout', () => {
       >
         <Routes>
           <Route element={<AppLayout />}>
-            <Route path="/study" element={<StudyProbe />} />
+            <Route path="/study/section/:sectionNumber" element={<StudyProbe />} />
           </Route>
         </Routes>
       </MemoryRouter>,

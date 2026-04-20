@@ -1,7 +1,8 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
+import { getCompletedSectionIndexFromNavigationState, getSectionStudyPath } from '../lib/routes';
 import { useAppState } from '../app/AppState';
 
 function CheckIcon({ animate = false }: { animate?: boolean }) {
@@ -35,11 +36,11 @@ function SkipIcon() {
 
 export function OverviewPage() {
   const { verbs, settingsStore, catalogStatus } = useAppState();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [celebratingSectionIndex, setCelebratingSectionIndex] = useState<number | null>(null);
   const sectionRefs = useRef<Record<number, HTMLLIElement | null>>({});
-  const completedSectionParam = searchParams.get('completedSection');
-  const completedSectionIndex = completedSectionParam ? Number.parseInt(completedSectionParam, 10) - 1 : null;
+  const completedSectionIndex = getCompletedSectionIndexFromNavigationState(location.state);
   const sections = useMemo(() => {
     if (catalogStatus !== 'ready') {
       return [];
@@ -104,13 +105,14 @@ export function OverviewPage() {
       behavior: 'auto',
     });
     setCelebratingSectionIndex(completedSectionIndex);
+    navigate(location.pathname, { replace: true, state: null });
 
     const timeoutId = window.setTimeout(() => {
       setCelebratingSectionIndex((current) => (current === completedSectionIndex ? null : current));
     }, 1800);
 
     return () => window.clearTimeout(timeoutId);
-  }, [completedSectionIndex, sections.length]);
+  }, [completedSectionIndex, location.pathname, navigate, sections.length]);
 
   if (catalogStatus !== 'ready') {
     return (
@@ -186,7 +188,7 @@ export function OverviewPage() {
                 </div>
                 <div className="unit-card__copy">
                   <h3 className="unit-card__title-row">
-                    <Link className="unit-card__link" to={`/study?section=${section.index + 1}`}>
+                    <Link className="unit-card__link" to={getSectionStudyPath(section.index + 1)}>
                       Section {String(section.index + 1).padStart(3, '0')}
                     </Link>
                     {section.completed ? <span className="unit-card__badge">Completed</span> : null}

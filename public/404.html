@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Japanese Verb Practice</title>
+    <script>
+      (function redirectToAppRoot() {
+        var redirectKey = 'jp-verbs-static-redirect-path';
+        var redirectPath = window.location.pathname + window.location.search + window.location.hash;
+        var pathSegments = window.location.pathname.split('/').filter(Boolean);
+        var knownTopLevelRoutes = ['study', 'index', 'browse', 'stats', 'annex'];
+        var appBase =
+          pathSegments.length > 0 && !knownTopLevelRoutes.includes(pathSegments[0])
+            ? '/' + pathSegments[0] + '/'
+            : '/';
+
+        window.sessionStorage.setItem(redirectKey, redirectPath);
+        window.location.replace(appBase);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

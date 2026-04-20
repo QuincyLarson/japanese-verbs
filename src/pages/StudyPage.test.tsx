@@ -119,6 +119,36 @@ function renderStudyPage(initialEntry = '/study') {
     expect(await screen.findByText(/correct! you'll see this again in 2 days\./i)).toBeInTheDocument();
   });
 
+  it('hides the input placeholder after the first three completed reviews', () => {
+    const progressStore = createEmptyProgressStore();
+    progressStore.items[mockVerb.masteryKey] = {
+      dueAt: new Date('2026-04-20T12:00:00.000Z').toISOString(),
+      intervalDays: 2,
+      ease: 2.3,
+      streak: 3,
+      lapses: 0,
+      totalSeen: 3,
+      totalCorrect: 3,
+      introducedAt: new Date('2026-04-20T12:00:00.000Z').toISOString(),
+      perFormFamily: {},
+    };
+
+    mockUseAppState.mockReturnValue({
+      verbs: [mockVerb],
+      catalogStatus: 'ready',
+      progressStore,
+      settingsStore: createDefaultSettingsStore(),
+      applyStudyPreset: vi.fn(),
+      ensureCurriculumSectionSession: vi.fn(),
+      recordCurriculumSectionAttempt: vi.fn(() => ({ completed: false })),
+      recordReview: vi.fn(),
+    });
+
+    renderStudyPage();
+
+    expect(screen.getByRole('textbox', { name: /type pronunciation here/i })).not.toHaveAttribute('placeholder');
+  });
+
   it('requires a corrected pronunciation before allowing the next card', async () => {
     renderStudyPage();
 
@@ -161,8 +191,8 @@ function renderStudyPage(initialEntry = '/study') {
 
     expect(await screen.findByText(/loading lesson stack/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /curriculum/i })).toHaveAttribute('href', '/');
-    expect(screen.getByText(/lesson 1:/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /essential everyday verbs/i })).toBeInTheDocument();
+    expect(screen.getByText(/^Lesson 1: Essential everyday verbs$/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /curriculum > lesson 1: essential everyday verbs/i })).toBeInTheDocument();
   });
 
   it('reveals the final lesson card before returning to the curriculum', async () => {

@@ -184,6 +184,11 @@ export function StudyPage() {
   const canAdvanceToNextCard = isRevealed && (!requiresCorrection || typedAnswerMatches);
   const shouldShowSurfaceDetails =
     currentCard && (currentCard.surface.jp !== currentCard.entry.orthography || currentCard.formKey !== 'dictionary');
+  const completedReviewCount = Object.values(progressStore.items).reduce(
+    (count, progress) => count + progress.totalCorrect,
+    0,
+  );
+  const shouldShowInputPlaceholder = completedReviewCount < 3;
 
   function handleSubmit() {
     if (!currentCard || isRevealed) {
@@ -340,7 +345,7 @@ export function StudyPage() {
                       autoCorrect="off"
                       className="text-input surface-response__input"
                       onChange={(event) => setTypedAnswer(event.target.value)}
-                      placeholder="Type pronunciation here"
+                      placeholder={shouldShowInputPlaceholder ? 'Type pronunciation here' : undefined}
                       spellCheck={false}
                       type="text"
                       value={typedAnswer}

@@ -101,7 +101,7 @@ describe('StudyPage', () => {
     expect(speakJapanese).toHaveBeenLastCalledWith('よむ');
   });
 
-  it('keeps the typed guess editable after a wrong answer', async () => {
+  it('requires a corrected pronunciation before allowing the next card', async () => {
     renderStudyPage();
 
     fireEvent.change(screen.getByRole('textbox', { name: /type pronunciation here/i }), {
@@ -114,14 +114,22 @@ describe('StudyPage', () => {
     expect(screen.queryByText(/you guessed/i)).not.toBeInTheDocument();
 
     const textbox = screen.getByRole('textbox', { name: /type pronunciation here/i });
+    const nextButton = screen.getByRole('button', { name: /next verb \[enter\]/i });
 
     expect(textbox).toHaveValue('miru');
+    expect(nextButton).toBeDisabled();
+
+    fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
+
+    expect(screen.getByText(/^Incorrect\.$/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /type pronunciation here/i })).toHaveValue('miru');
 
     fireEvent.change(textbox, {
       target: { value: 'yomu' },
     });
 
     expect(textbox).toHaveValue('yomu');
+    expect(nextButton).toBeEnabled();
 
     fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
 

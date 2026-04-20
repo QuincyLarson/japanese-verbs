@@ -13,6 +13,18 @@ import { FORM_PRESETS } from '../lib/dataset';
 import { formatDelayLabel } from '../lib/delayLabel';
 import { createStudySnapshot, getScheduledCardForEntry, type ScheduledCard } from '../lib/scheduler';
 
+function isTightStudyViewport() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  const viewport = window.visualViewport;
+  const width = viewport?.width ?? window.innerWidth;
+  const height = viewport?.height ?? window.innerHeight;
+
+  return width <= 480 && height <= 560;
+}
+
 export function StudyPage() {
   const {
     verbs,
@@ -31,6 +43,7 @@ export function StudyPage() {
   const [revealedIsCorrect, setRevealedIsCorrect] = useState<boolean | null>(null);
   const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
   const [canSpeak, setCanSpeak] = useState(() => canSpeakJapanese());
+  const [isTightViewport, setIsTightViewport] = useState(() => isTightStudyViewport());
   const inputRef = useRef<HTMLInputElement | null>(null);
   const selectedSection = parsePositiveRouteNumber(sectionNumber);
   const sectionIndex = selectedSection !== null ? selectedSection - 1 : null;
@@ -118,6 +131,27 @@ export function StudyPage() {
     return () => synth.removeEventListener?.('voiceschanged', update);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const handleViewportChange = () => {
+      setIsTightViewport(isTightStudyViewport());
+    };
+
+    handleViewportChange();
+    const viewport = window.visualViewport;
+
+    window.addEventListener('resize', handleViewportChange);
+    viewport?.addEventListener('resize', handleViewportChange);
+
+    return () => {
+      window.removeEventListener('resize', handleViewportChange);
+      viewport?.removeEventListener('resize', handleViewportChange);
+    };
+  }, []);
+
   if (catalogStatus !== 'ready') {
     return (
       <section className="panel stack">
@@ -135,6 +169,8 @@ export function StudyPage() {
   const cleanedTypedAnswer = typedAnswer.trim();
   const typedAnswerMatches = currentCard ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading) : false;
   const showEditableInput = !isRevealed || revealedIsCorrect === false;
+  const requiresCorrection = isRevealed && revealedIsCorrect === false;
+  const canAdvanceToNextCard = isRevealed && (!requiresCorrection || typedAnswerMatches);
   const shouldShowSurfaceDetails =
     currentCard && (currentCard.surface.jp !== currentCard.entry.orthography || currentCard.formKey !== 'dictionary');
 
@@ -180,6 +216,10 @@ export function StudyPage() {
   }
 
   function handleNextVerb() {
+    if (revealedIsCorrect === false && !typedAnswerMatches) {
+      return;
+    }
+
     setActiveCard(null);
     setIsRevealed(false);
     setTypedAnswer('');
@@ -210,6 +250,11 @@ export function StudyPage() {
       if (event.key === 'Enter') {
         if (isRevealed) {
           event.preventDefault();
+
+          if (!canAdvanceToNextCard) {
+            return;
+          }
+
           handleNextVerb();
           return;
         }
@@ -235,11 +280,13 @@ export function StudyPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [canSpeak, currentCard, isRevealed, typedAnswerMatches, typedAnswer, progressStore]);
+  }, [canAdvanceToNextCard, canSpeak, currentCard, isRevealed, typedAnswerMatches, typedAnswer, progressStore]);
 
   return (
     <section className="page-stack">
-      <article className={`study-sheet stack${isRevealed ? ' study-sheet--revealed' : ''}`}>
+      <article
+        className={`study-sheet stack${isRevealed ? ' study-sheet--revealed' : ''}${isTightViewport ? ' study-sheet--tight' : ''}`}
+      >
         {selectedLessonLabel ? (
           <div className="study-heading">
             <nav aria-label="Breadcrumb" className="breadcrumb">
@@ -333,7 +380,12 @@ export function StudyPage() {
                   >
                     Hear again [space]
                   </button>
-                  <button className="block-link study-submit" onClick={handleNextVerb} type="button">
+                  <button
+                    className="block-link study-submit"
+                    disabled={!canAdvanceToNextCard}
+                    onClick={handleNextVerb}
+                    type="button"
+                  >
                     Next verb [enter]
                   </button>
                 </div>

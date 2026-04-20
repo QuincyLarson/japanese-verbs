@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { HeaderSwitch } from './HeaderSwitch';
@@ -10,6 +10,25 @@ const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean }> = [
 ];
 
 type ThemeMode = 'light' | 'dark';
+
+function scrollToTopImmediately() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'auto',
+    });
+  } catch {
+    // jsdom does not implement window.scrollTo, so fall through to direct scrollTop writes.
+  }
+
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
 
 function getSystemTheme(): ThemeMode {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
@@ -45,6 +64,23 @@ export function AppLayout() {
   useEffect(() => {
     document.documentElement.dataset.theme = resolvedTheme;
   }, [resolvedTheme]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('scrollRestoration' in window.history)) {
+      return undefined;
+    }
+
+    const previous = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
+
+    return () => {
+      window.history.scrollRestoration = previous;
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    scrollToTopImmediately();
+  }, [location.pathname, location.search, location.hash]);
 
   useEffect(() => {
     setIsMenuOpen(false);

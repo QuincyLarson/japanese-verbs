@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
@@ -83,6 +83,46 @@ export function OverviewPage() {
       };
     });
   }, [catalogStatus, settingsStore.curriculum, verbs]);
+  const selectedSection = useMemo(
+    () => sections.find((section) => section.isCurrent) ?? sections.find((section) => !section.completed) ?? sections[0] ?? null,
+    [sections],
+  );
+
+  useEffect(() => {
+    if (!selectedSection) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        event.key !== 'Enter' ||
+        event.defaultPrevented ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.repeat
+      ) {
+        return;
+      }
+
+      const activeElement = document.activeElement;
+
+      if (
+        activeElement instanceof HTMLElement &&
+        (activeElement.isContentEditable ||
+          ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(activeElement.tagName))
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      navigate(getSectionStudyPath(selectedSection.index + 1));
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigate, selectedSection]);
 
   useLayoutEffect(() => {
     if (completedSectionIndex === null || completedSectionIndex < 0) {

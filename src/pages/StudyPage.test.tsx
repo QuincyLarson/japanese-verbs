@@ -79,11 +79,32 @@ describe('StudyPage', () => {
 
     expect(speakJapanese).toHaveBeenCalledTimes(1);
     expect(speakJapanese).toHaveBeenLastCalledWith('よむ');
+    expect(
+      await screen.findByText(/correct! you'll see this again in 2 days\./i),
+    ).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: /hear again \[space\]/i })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: ' ', code: 'Space' });
 
     expect(speakJapanese).toHaveBeenCalledTimes(2);
     expect(speakJapanese).toHaveBeenLastCalledWith('よむ');
+  });
+
+  it('shows the guessed text in red-state copy when the answer is wrong', async () => {
+    render(
+      <MemoryRouter initialEntries={['/study']}>
+        <StudyPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.change(screen.getByRole('textbox', { name: /type pronunciation here/i }), {
+      target: { value: 'miru' },
+    });
+    fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
+
+    expect(
+      await screen.findByText((_, element) => element?.textContent === 'Incorrect. You guessed miru.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/correct reading:/i)).toBeInTheDocument();
   });
 });

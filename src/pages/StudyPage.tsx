@@ -36,7 +36,7 @@ export function StudyPage() {
   const [searchParams] = useSearchParams();
   const [isRevealed, setIsRevealed] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState('');
-  const [reviewFeedback, setReviewFeedback] = useState<string>();
+  const [successDelayLabel, setSuccessDelayLabel] = useState<string>();
   const [activeCard, setActiveCard] = useState<ScheduledCard | null>(null);
   const [canSpeak, setCanSpeak] = useState(() => canSpeakJapanese());
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -51,7 +51,7 @@ export function StudyPage() {
     setActiveCard(null);
     setIsRevealed(false);
     setTypedAnswer('');
-    setReviewFeedback(undefined);
+    setSuccessDelayLabel(undefined);
   }, [presetFromUrl, sectionParam]);
 
   const studyVerbs =
@@ -101,6 +101,7 @@ export function StudyPage() {
     : [];
   const cleanedTypedAnswer = typedAnswer.trim();
   const typedAnswerMatches = currentCard ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading) : false;
+  const guessedLabel = cleanedTypedAnswer || 'nothing';
   const shouldShowSurfaceDetails =
     currentCard && (currentCard.surface.jp !== currentCard.entry.orthography || currentCard.formKey !== 'dictionary');
 
@@ -120,11 +121,7 @@ export function StudyPage() {
 
     recordReview(currentCard.entry.masteryKey, currentCard.formKey, grade);
     speakJapanese(currentCard.surface.reading);
-    setReviewFeedback(
-      typedAnswerMatches
-        ? `Awesome. You'll see this again in ${formatDelayLabel(preview.dueAt, now)}.`
-        : `No worries. You'll see it again in ${formatDelayLabel(preview.dueAt, now)}.`,
-    );
+    setSuccessDelayLabel(typedAnswerMatches ? formatDelayLabel(preview.dueAt, now) : undefined);
     setIsRevealed(true);
   }
 
@@ -132,7 +129,7 @@ export function StudyPage() {
     setActiveCard(null);
     setIsRevealed(false);
     setTypedAnswer('');
-    setReviewFeedback(undefined);
+    setSuccessDelayLabel(undefined);
   }
 
   function handleHearAgain() {
@@ -235,13 +232,17 @@ export function StudyPage() {
                       ({FORM_PRESETS[currentCard.formKey].label})
                     </p>
                   ) : null}
-                  {cleanedTypedAnswer ? (
-                    <p className={`answer-line${typedAnswerMatches ? ' answer-line--success' : ''}`}>
-                      Your reading: <strong>{cleanedTypedAnswer}</strong>
-                      {typedAnswerMatches ? ' matched the expected reading.' : ''}
+                  {typedAnswerMatches && successDelayLabel ? (
+                    <p className="answer-line answer-line--success">
+                      Correct! You&apos;ll see this again in {successDelayLabel}.
                     </p>
                   ) : null}
-                  {cleanedTypedAnswer && !typedAnswerMatches ? (
+                  {!typedAnswerMatches ? (
+                    <p className="answer-line answer-line--error">
+                      Incorrect. You guessed <strong>{guessedLabel}</strong>.
+                    </p>
+                  ) : null}
+                  {!typedAnswerMatches ? (
                     <p className="answer-line">
                       Correct reading: <strong lang="ja">{currentCard.surface.reading}</strong>
                     </p>
@@ -266,11 +267,6 @@ export function StudyPage() {
                   >
                     Hear again [space]
                   </button>
-                  {reviewFeedback ? (
-                    <p aria-live="polite" className="review-feedback" role="status">
-                      {reviewFeedback}
-                    </p>
-                  ) : null}
                   <button className="block-link study-submit" onClick={handleNextVerb} type="button">
                     Next verb [enter]
                   </button>

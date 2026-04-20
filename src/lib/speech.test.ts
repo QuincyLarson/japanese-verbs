@@ -1,4 +1,17 @@
-import { selectBestJapaneseVoice } from './speech';
+import { selectBestJapaneseVoice, speakJapanese } from './speech';
+
+class MockSpeechSynthesisUtterance {
+  lang = '';
+  pitch = 1;
+  rate = 1;
+  text: string;
+  voice?: SpeechSynthesisVoice;
+  volume = 1;
+
+  constructor(text: string) {
+    this.text = text;
+  }
+}
 
 describe('selectBestJapaneseVoice', () => {
   it('prefers Kyoko on Apple platforms when available', () => {
@@ -47,5 +60,51 @@ describe('selectBestJapaneseVoice', () => {
     );
 
     expect(selected?.name).toBe('Google 日本語');
+  });
+});
+
+describe('speakJapanese', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it('queues a short restart delay when replay is requested while speech is active', () => {
+    vi.useFakeTimers();
+
+    const cancel = vi.fn();
+    const getVoices = vi.fn(() => []);
+    const resume = vi.fn();
+    const speak = vi.fn();
+    const synth = {
+      speaking: true,
+      pending: false,
+      cancel: () => {
+        cancel();
+        synth.speaking = false;
+      },
+      getVoices,
+      resume,
+      speak,
+    };
+
+    vi.stubGlobal('speechSynthesis', synth);
+    vi.stubGlobal('SpeechSynthesisUtterance', MockSpeechSynthesisUtterance);
+    vi.stubGlobal(
+      'window',
+      Object.assign(globalThis.window ?? {}, {
+        speechSynthesis: synth,
+        SpeechSynthesisUtterance: MockSpeechSynthesisUtterance,
+      }),
+    );
+
+    expect(speakJapanese('よむ')).toBe(true);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(speak).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(80);
+
+    expect(resume).toHaveBeenCalledTimes(1);
+    expect(speak).toHaveBeenCalledTimes(1);
   });
 });

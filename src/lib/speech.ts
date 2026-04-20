@@ -11,6 +11,9 @@ const PLATFORM_VOICE_NAMES: Record<SpeechPlatform, string[]> = {
 
 let cachedJapaneseVoice: SpeechSynthesisVoice | null = null;
 let isVoiceWarmupAttached = false;
+let pendingSpeakTimer: number | null = null;
+let lastSpeakRequestedAt = 0;
+let lastSpeakText = '';
 
 function hasSpeechSupport() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
@@ -116,6 +119,34 @@ function speakNow(text: string) {
   return true;
 }
 
+function clearPendingSpeakTimer() {
+  if (pendingSpeakTimer === null || typeof window === 'undefined') {
+    return;
+  }
+
+  window.clearTimeout(pendingSpeakTimer);
+  pendingSpeakTimer = null;
+}
+
+function queueSpeak(text: string, delayMs = 0) {
+  if (!hasSpeechSupport()) {
+    return false;
+  }
+
+  clearPendingSpeakTimer();
+
+  if (delayMs <= 0 || typeof window === 'undefined') {
+    return speakNow(text);
+  }
+
+  pendingSpeakTimer = window.setTimeout(() => {
+    pendingSpeakTimer = null;
+    speakNow(text);
+  }, delayMs);
+
+  return true;
+}
+
 function refreshCachedJapaneseVoice() {
   if (!hasSpeechSupport()) {
     cachedJapaneseVoice = null;
@@ -167,7 +198,21 @@ export function speakJapanese(text: string) {
     return false;
   }
 
+  const now = Date.now();
   refreshCachedJapaneseVoice();
   primeJapaneseVoices();
+  const synth = window.speechSynthesis;
+  const isImmediateReplay = text === lastSpeakText && now - lastSpeakRequestedAt < 1500;
+  const needsRestartDelay = synth.speaking || synth.pending || isImmediateReplay;
+
+  lastSpeakText = text;
+  lastSpeakRequestedAt = now;
+
+  if (needsRestartDelay) {
+    synth.cancel();
+    return queueSpeak(text, 80);
+  }
+
+  clearPendingSpeakTimer();
   return speakNow(text);
 }

@@ -53,3 +53,4 @@
 - 2026-04-15: Simplified the navbar theme toggle by removing the boxed Day/Night control and replacing it with a compact sun/moon icon switch that keeps the same accessible `switch` semantics.
 - 2026-04-15: Audited the implemented app against `docs/PRD.md` and wrote the remaining-work breakdown to `docs/prd-gap-action-plan.md`.
 - 2026-04-19: Reworked the narrow-screen navbar into a single-line brand row with theme icon plus hamburger toggle, and moved the nav links into a collapsible mobile menu so the header never wraps and consumes phone-height space.
+- 2026-04-19: Fixed repeated study-audio playback by queuing a short restart delay after canceling active speech, which makes the `Hear again [space]` replay path more reliable in mobile and in-app browsers.

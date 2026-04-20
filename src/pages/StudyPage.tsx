@@ -170,7 +170,14 @@ export function StudyPage() {
     ? getInflectionExplanation(currentCard.formKey, currentCard.entry.englishPrimary)
     : [];
   const cleanedTypedAnswer = typedAnswer.trim();
-  const typedAnswerMatches = currentCard ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading) : false;
+  const acceptedJapaneseAnswers = currentCard
+    ? currentCard.formKey === 'dictionary'
+      ? [currentCard.surface.jp, currentCard.entry.orthography, ...currentCard.entry.alternateSpellings]
+      : [currentCard.surface.jp]
+    : [];
+  const typedAnswerMatches = currentCard
+    ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading, acceptedJapaneseAnswers)
+    : false;
   const showEditableInput = !isRevealed || revealedIsCorrect === false;
   const requiresCorrection = isRevealed && revealedIsCorrect === false;
   const canAdvanceToNextCard = isRevealed && (!requiresCorrection || typedAnswerMatches);

@@ -108,6 +108,17 @@ function renderStudyPage(initialEntry = '/study') {
     expect(speakJapanese).toHaveBeenLastCalledWith('よむ');
   });
 
+  it('accepts IME-converted japanese form input when it matches the displayed verb', async () => {
+    renderStudyPage();
+
+    fireEvent.change(screen.getByRole('textbox', { name: /type pronunciation here/i }), {
+      target: { value: '読む' },
+    });
+    fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
+
+    expect(await screen.findByText(/correct! you'll see this again in 2 days\./i)).toBeInTheDocument();
+  });
+
   it('requires a corrected pronunciation before allowing the next card', async () => {
     renderStudyPage();
 

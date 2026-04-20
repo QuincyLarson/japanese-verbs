@@ -232,7 +232,28 @@ export function normalizeKanaText(value: string) {
   return toHiragana(value.normalize('NFKC')).replace(/[^ぁ-ゖ゙゚ー]/g, '');
 }
 
-export function matchesReadingInput(input: string, expectedReading: string) {
+function normalizeJapaneseFormText(value: string) {
+  return value.normalize('NFKC').replace(/\s+/g, '');
+}
+
+export function matchesReadingInput(
+  input: string,
+  expectedReading: string,
+  acceptedJapaneseForms?: string | readonly string[],
+) {
+  const normalizedInputJapaneseForm = normalizeJapaneseFormText(input);
+  const normalizedAcceptedJapaneseForms = (Array.isArray(acceptedJapaneseForms) ? acceptedJapaneseForms : [acceptedJapaneseForms])
+    .filter((value): value is string => Boolean(value))
+    .map((value) => normalizeJapaneseFormText(value))
+    .filter(Boolean);
+
+  if (
+    normalizedInputJapaneseForm &&
+    normalizedAcceptedJapaneseForms.includes(normalizedInputJapaneseForm)
+  ) {
+    return true;
+  }
+
   const normalizedExpectedKana = normalizeKanaText(expectedReading);
   const normalizedInputKana = normalizeKanaText(input);
 

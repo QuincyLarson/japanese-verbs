@@ -101,11 +101,14 @@ describe('kanaToRomaji', () => {
     expect(matchesReadingInput('よむ', 'よむ')).toBe(true);
     expect(matchesReadingInput('ヨム', 'よむ')).toBe(true);
     expect(matchesReadingInput('yomu', 'よむ')).toBe(true);
+    expect(matchesReadingInput('読む', 'よむ', '読む')).toBe(true);
+    expect(matchesReadingInput('読んで', 'よんで', '読んで')).toBe(true);
     expect(matchesReadingInput('tukuru', 'つくる')).toBe(true);
     expect(matchesReadingInput('siru', 'しる')).toBe(true);
     expect(matchesReadingInput('syaberu', 'しゃべる')).toBe(true);
     expect(matchesReadingInput('tyau', 'ちゃう')).toBe(true);
     expect(matchesReadingInput('huru', 'ふる')).toBe(true);
+    expect(matchesReadingInput('読む', 'よんで', '読んで')).toBe(false);
     expect(matchesReadingInput('taberu', 'よむ')).toBe(false);
   });
 });

@@ -261,7 +261,7 @@ export function StudyPage() {
         {currentCard ? (
           <>
             <div className={`surface-block${isRevealed ? ' surface-block--revealed' : ''}`}>
-              <p className={`surface-form${isRevealed ? ' surface-form--revealed' : ''}`} lang="ja">
+              <p className="surface-form" lang="ja">
                 {currentCard.surface.jp}
               </p>
               <div className="study-input-block stack-sm">

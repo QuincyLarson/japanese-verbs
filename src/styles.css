@@ -954,10 +954,6 @@ p {
   word-break: break-word;
 }
 
-.surface-form--revealed {
-  font-size: clamp(2.55rem, 9vw, 3.55rem);
-}
-
 .answer-panel {
   gap: 0.6rem;
 }
@@ -1072,10 +1068,6 @@ p {
 
   .surface-form {
     font-size: clamp(2.8rem, 11vw, 4.15rem);
-  }
-
-  .surface-form--revealed {
-    font-size: clamp(2.2rem, 8vw, 3rem);
   }
 
   .study-input-block {

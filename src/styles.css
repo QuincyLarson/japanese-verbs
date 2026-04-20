@@ -385,6 +385,7 @@ button {
 }
 
 .unit-card__status {
+  position: relative;
   display: inline-grid;
   place-items: center;
   width: 1.4rem;
@@ -403,6 +404,12 @@ button {
   height: 0.92rem;
 }
 
+.unit-card__status-icon--animated path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: unit-card-check-draw 520ms ease forwards;
+}
+
 .unit-card__status.is-completed {
   border-color: var(--success);
   background: var(--success);
@@ -413,6 +420,59 @@ button {
   border-color: var(--success);
   background: rgba(45, 109, 79, 0.14);
   color: var(--success);
+}
+
+.unit-card__confetti {
+  position: absolute;
+  inset: -1rem;
+  pointer-events: none;
+}
+
+.unit-card__confetti-piece {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.22rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  opacity: 0;
+  transform-origin: center;
+  animation: unit-card-confetti-burst 900ms ease-out forwards;
+}
+
+.unit-card__confetti-piece--1 {
+  background: var(--accent);
+  --burst-x: -1.7rem;
+  --burst-y: -1.4rem;
+  --burst-rotate: -28deg;
+}
+
+.unit-card__confetti-piece--2 {
+  background: #2a9d8f;
+  --burst-x: 1.8rem;
+  --burst-y: -1.35rem;
+  --burst-rotate: 34deg;
+}
+
+.unit-card__confetti-piece--3 {
+  background: #e76f51;
+  --burst-x: -1.45rem;
+  --burst-y: 1.2rem;
+  --burst-rotate: 18deg;
+}
+
+.unit-card__confetti-piece--4 {
+  background: #8ab17d;
+  --burst-x: 1.4rem;
+  --burst-y: 1.25rem;
+  --burst-rotate: -22deg;
+}
+
+.unit-card__confetti-piece--5 {
+  background: #f4a261;
+  --burst-x: 0rem;
+  --burst-y: -1.85rem;
+  --burst-rotate: 50deg;
 }
 
 .unit-card__step {
@@ -469,6 +529,48 @@ button {
 .unit-card__link:hover {
   color: var(--accent);
   text-decoration-thickness: 2px;
+}
+
+.unit-card__subsection.is-celebrating {
+  animation: unit-card-celebrate-row 900ms ease-out;
+}
+
+@keyframes unit-card-check-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes unit-card-confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--burst-x)), calc(-50% + var(--burst-y)))
+      scale(1)
+      rotate(var(--burst-rotate));
+  }
+}
+
+@keyframes unit-card-celebrate-row {
+  0% {
+    background: var(--accent-soft);
+  }
+
+  100% {
+    background: rgba(45, 109, 79, 0.08);
+  }
 }
 
 .page-stack,

@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { getInflectionExplanation } from '../lib/conjugation';
+import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
 import { getPresetFromSearchParam } from '../lib/filters';
 import { getOrCreateProgress, previewGradeResult } from '../lib/progress';
 import { matchesReadingInput } from '../lib/romaji';
 import { canSpeakJapanese, primeJapaneseVoices, speakJapanese } from '../lib/speech';
 import { FORM_PRESETS } from '../lib/dataset';
-import { createStudySnapshot, type ScheduledCard } from '../lib/scheduler';
+import { createStudySnapshot, getScheduledCardForEntry, type ScheduledCard } from '../lib/scheduler';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -32,7 +33,17 @@ function formatDelayLabel(dueAt: string, now: Date) {
 }
 
 export function StudyPage() {
-  const { verbs, catalogStatus, progressStore, settingsStore, applyStudyPreset, recordReview } = useAppState();
+  const {
+    verbs,
+    catalogStatus,
+    progressStore,
+    settingsStore,
+    applyStudyPreset,
+    ensureCurriculumSectionSession,
+    recordCurriculumSectionAttempt,
+    recordReview,
+  } = useAppState();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isRevealed, setIsRevealed] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState('');
@@ -43,6 +54,7 @@ export function StudyPage() {
   const presetFromUrl = getPresetFromSearchParam(searchParams.get('preset'));
   const sectionParam = searchParams.get('section');
   const selectedSection = sectionParam ? Number.parseInt(sectionParam, 10) : null;
+  const sectionIndex = selectedSection && Number.isFinite(selectedSection) && selectedSection > 0 ? selectedSection - 1 : null;
 
   useEffect(() => {
     if (presetFromUrl) {
@@ -54,22 +66,64 @@ export function StudyPage() {
     setSuccessDelayLabel(undefined);
   }, [presetFromUrl, sectionParam]);
 
-  const studyVerbs =
-    catalogStatus === 'ready' && selectedSection && Number.isFinite(selectedSection) && selectedSection > 0
-      ? getCurriculumSections(verbs)[selectedSection - 1] ?? verbs
-      : verbs;
+  const studyVerbs = useMemo(
+    () =>
+      catalogStatus === 'ready' && sectionIndex !== null
+        ? getCurriculumSections(verbs)[sectionIndex] ?? []
+        : verbs,
+    [catalogStatus, sectionIndex, verbs],
+  );
+  const sectionMasteryKeys = useMemo(
+    () =>
+      catalogStatus === 'ready' && sectionIndex !== null
+        ? studyVerbs.map((entry) => entry.masteryKey)
+        : [],
+    [catalogStatus, sectionIndex, studyVerbs],
+  );
+  const sectionProgress =
+    catalogStatus === 'ready' && sectionIndex !== null
+      ? getSectionProgress(settingsStore.curriculum, sectionIndex, sectionMasteryKeys)
+      : null;
+  const sectionEntry =
+    sectionIndex !== null && sectionProgress?.currentMasteryKey
+      ? studyVerbs.find((entry) => entry.masteryKey === sectionProgress.currentMasteryKey) ?? null
+      : null;
+  const sectionCard =
+    sectionEntry && sectionIndex !== null
+      ? getScheduledCardForEntry(sectionEntry, progressStore, settingsStore.study)
+      : null;
 
   const snapshot =
-    catalogStatus === 'ready'
+    catalogStatus === 'ready' && sectionIndex === null
       ? createStudySnapshot(studyVerbs, progressStore, settingsStore.study)
       : null;
   const suggestedCard = snapshot?.nextCard ?? null;
+  const preferredCard = sectionIndex !== null ? sectionCard : suggestedCard;
 
   useEffect(() => {
-    if (!activeCard && suggestedCard) {
-      setActiveCard(suggestedCard);
+    if (catalogStatus !== 'ready' || sectionIndex === null || sectionMasteryKeys.length === 0) {
+      return;
     }
-  }, [activeCard, suggestedCard]);
+
+    ensureCurriculumSectionSession(sectionIndex, sectionMasteryKeys);
+  }, [
+    catalogStatus,
+    ensureCurriculumSectionSession,
+    sectionIndex,
+    sectionMasteryKeys,
+  ]);
+
+  useEffect(() => {
+    if (catalogStatus === 'ready' && selectedSection && sectionMasteryKeys.length === 0) {
+      navigate('/', { replace: true });
+    }
+  }, [catalogStatus, navigate, sectionMasteryKeys.length, selectedSection]);
+
+  useEffect(() => {
+    if (!activeCard && preferredCard) {
+      setActiveCard(preferredCard);
+    }
+  }, [activeCard, preferredCard]);
 
   useEffect(() => {
     setCanSpeak(primeJapaneseVoices());
@@ -95,7 +149,7 @@ export function StudyPage() {
     );
   }
 
-  const currentCard = activeCard ?? suggestedCard;
+  const currentCard = activeCard ?? preferredCard;
   const explanation = currentCard
     ? getInflectionExplanation(currentCard.formKey, currentCard.entry.englishPrimary)
     : [];
@@ -121,6 +175,21 @@ export function StudyPage() {
 
     recordReview(currentCard.entry.masteryKey, currentCard.formKey, grade);
     speakJapanese(currentCard.surface.reading);
+
+    if (sectionIndex !== null) {
+      const sectionResult = recordCurriculumSectionAttempt(
+        sectionIndex,
+        sectionMasteryKeys,
+        currentCard.entry.masteryKey,
+        typedAnswerMatches,
+      );
+
+      if (typedAnswerMatches && sectionResult.completed) {
+        navigate(`/?completedSection=${sectionIndex + 1}`, { replace: true });
+        return;
+      }
+    }
+
     setSuccessDelayLabel(typedAnswerMatches ? formatDelayLabel(preview.dueAt, now) : undefined);
     setIsRevealed(true);
   }
@@ -274,6 +343,12 @@ export function StudyPage() {
               </div>
             ) : null}
           </>
+        ) : sectionIndex !== null ? (
+          <div className="stack">
+            <p className="eyebrow">Section {String(selectedSection).padStart(3, '0')}</p>
+            <h3>Loading section stack</h3>
+            <p className="muted-text">Restoring your saved progress for this section.</p>
+          </div>
         ) : (
           <div className="stack">
             <p className="eyebrow">No matching cards</p>

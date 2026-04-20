@@ -1,5 +1,6 @@
 import { FORM_ORDER } from './dataset';
 import { DEFAULT_STUDY_SETTINGS } from './filters';
+import { createEmptyCurriculumState } from './curriculumProgress';
 import { createEmptyProgressStore } from './progress';
 import type { ExportPayload, ProgressStore, SettingsStore } from '../types/study';
 import type { FormKey } from '../types/verb';
@@ -18,6 +19,51 @@ function isFormKey(value: unknown): value is FormKey {
 
 function isThemePreference(value: unknown): value is SettingsStore['themePreference'] {
   return value === 'system' || value === 'light' || value === 'dark';
+}
+
+function normalizeSectionIndexes(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      value
+        .map((entry) => Number(entry))
+        .filter((entry) => Number.isInteger(entry) && entry >= 0),
+    ),
+  ).sort((left, right) => left - right);
+}
+
+function normalizeSectionSessions(value: unknown) {
+  if (!isObject(value)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .map(([sectionKey, session]) => {
+        if (!isObject(session) || !Array.isArray(session.remainingMasteryKeys) || !Array.isArray(session.completedMasteryKeys)) {
+          return null;
+        }
+
+        return [
+          sectionKey,
+          {
+            sectionIndex: Number.isInteger(Number(session.sectionIndex)) ? Number(session.sectionIndex) : Number(sectionKey),
+            remainingMasteryKeys: session.remainingMasteryKeys.filter(
+              (entry): entry is string => typeof entry === 'string' && entry.length > 0,
+            ),
+            completedMasteryKeys: session.completedMasteryKeys.filter(
+              (entry): entry is string => typeof entry === 'string' && entry.length > 0,
+            ),
+            startedAt: typeof session.startedAt === 'string' ? session.startedAt : new Date().toISOString(),
+            updatedAt: typeof session.updatedAt === 'string' ? session.updatedAt : new Date().toISOString(),
+          },
+        ] as const;
+      })
+      .filter((entry): entry is readonly [string, SettingsStore['curriculum']['sectionSessions'][string]] => Boolean(entry)),
+  );
 }
 
 function getStorage(): Storage | null {
@@ -45,6 +91,31 @@ export function createDefaultSettingsStore(): SettingsStore {
     version: 1,
     themePreference: 'system',
     study: DEFAULT_STUDY_SETTINGS,
+    curriculum: createEmptyCurriculumState(),
+  };
+}
+
+function normalizeSettingsStore(parsed: unknown): SettingsStore {
+  if (!parsed || !isObject(parsed) || !isObject(parsed.study)) {
+    return createDefaultSettingsStore();
+  }
+
+  const curriculum = isObject(parsed.curriculum) ? parsed.curriculum : {};
+
+  return {
+    version: 1,
+    themePreference: isThemePreference(parsed.themePreference) ? parsed.themePreference : 'system',
+    study: {
+      ...DEFAULT_STUDY_SETTINGS,
+      ...parsed.study,
+      customForms: Array.isArray(parsed.study.customForms)
+        ? parsed.study.customForms.filter(isFormKey)
+        : DEFAULT_STUDY_SETTINGS.customForms,
+    },
+    curriculum: {
+      completedSectionIndexes: normalizeSectionIndexes(curriculum.completedSectionIndexes),
+      sectionSessions: normalizeSectionSessions(curriculum.sectionSessions),
+    },
   };
 }
 
@@ -78,21 +149,7 @@ export function loadSettingsStore(): SettingsStore {
   const storage = getStorage();
   const parsed = parseJson<SettingsStore>(storage?.getItem(SETTINGS_KEY) ?? null);
 
-  if (!parsed || !isObject(parsed) || !isObject(parsed.study)) {
-    return createDefaultSettingsStore();
-  }
-
-  return {
-    version: 1,
-    themePreference: isThemePreference(parsed.themePreference) ? parsed.themePreference : 'system',
-    study: {
-      ...DEFAULT_STUDY_SETTINGS,
-      ...parsed.study,
-      customForms: Array.isArray(parsed.study.customForms)
-        ? parsed.study.customForms.filter(isFormKey)
-        : DEFAULT_STUDY_SETTINGS.customForms,
-    },
-  };
+  return normalizeSettingsStore(parsed);
 }
 
 export function saveSettingsStore(store: SettingsStore) {
@@ -127,7 +184,7 @@ export function parseImportPayload(
       version: 1,
       exportedAt: typeof parsed.exportedAt === 'string' ? parsed.exportedAt : new Date().toISOString(),
       progress: parsed.progress,
-      settings: parsed.settings,
+      settings: normalizeSettingsStore(parsed.settings),
     },
   };
 }

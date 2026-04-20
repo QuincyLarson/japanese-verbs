@@ -42,6 +42,19 @@ export interface ProgressStore {
   meta: ProgressMeta;
 }
 
+export interface SectionSession {
+  sectionIndex: number;
+  remainingMasteryKeys: string[];
+  completedMasteryKeys: string[];
+  startedAt: string;
+  updatedAt: string;
+}
+
+export interface CurriculumState {
+  completedSectionIndexes: number[];
+  sectionSessions: Record<string, SectionSession>;
+}
+
 export type PoolMode = 'mixed' | 'new-only' | 'review-only';
 
 export type DeckSlice =
@@ -74,6 +87,7 @@ export interface SettingsStore {
   version: number;
   themePreference: ThemePreference;
   study: StudySettings;
+  curriculum: CurriculumState;
 }
 
 export interface ExportPayload {

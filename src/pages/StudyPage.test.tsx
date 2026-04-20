@@ -61,6 +61,8 @@ describe('StudyPage', () => {
       progressStore: createEmptyProgressStore(),
       settingsStore: createDefaultSettingsStore(),
       applyStudyPreset: vi.fn(),
+      ensureCurriculumSectionSession: vi.fn(),
+      recordCurriculumSectionAttempt: vi.fn(() => ({ completed: false })),
       recordReview: vi.fn(),
     });
   });

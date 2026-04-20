@@ -185,6 +185,44 @@ function getVerbScore(
   return dueBias + newBias + weakBias + mistakeBias + rankBias + formBias + starterBias;
 }
 
+export function getScheduledCardForEntry(
+  entry: VerbEntry,
+  progressStore: ProgressStore,
+  settings: StudySettings,
+  now = new Date(),
+): ScheduledCard | null {
+  const activeForms = resolveFormSelection(settings);
+  const baseline = getOrCreateProgress(progressStore, entry.masteryKey, now.toISOString());
+  const forms = sortForms(entry, baseline, activeForms, now);
+
+  if (forms.length === 0) {
+    return null;
+  }
+
+  const selectedForm = forms[0];
+  const progress = progressStore.items[entry.masteryKey];
+  const isNew = isNewVerb(progress);
+
+  return {
+    entry,
+    formKey: selectedForm.formKey,
+    surface: selectedForm.surface,
+    verbScore: getVerbScore(
+      entry,
+      baseline,
+      now,
+      selectedForm.score,
+      progressStore.meta.totalReviews,
+    ),
+    formScore: selectedForm.score,
+    reasons: [
+      isNew ? 'new verb' : 'existing review',
+      isNew ? 'ready to introduce' : isDue(baseline, now) ? 'due now' : 'scheduled later',
+      `focus form: ${selectedForm.formKey}`,
+    ],
+  };
+}
+
 export function createStudySnapshot(
   verbs: VerbEntry[],
   progressStore: ProgressStore,
@@ -217,36 +255,13 @@ export function createStudySnapshot(
       continue;
     }
 
-    const baseline = getOrCreateProgress(progressStore, entry.masteryKey, now.toISOString());
-    const forms = sortForms(entry, baseline, activeForms, now);
+    const selectedCard = getScheduledCardForEntry(entry, progressStore, settings, now);
 
-    if (forms.length === 0) {
+    if (!selectedCard) {
       continue;
     }
 
-    const selectedForm = forms[0];
-    const verbScore = getVerbScore(
-      entry,
-      baseline,
-      now,
-      selectedForm.score,
-      progressStore.meta.totalReviews,
-    );
-    const isNew = isNewVerb(progress);
-    const reasons = [
-      isNew ? 'new verb' : 'existing review',
-      isNew ? 'ready to introduce' : isDue(baseline, now) ? 'due now' : 'scheduled later',
-      `focus form: ${selectedForm.formKey}`,
-    ];
-
-    candidates.push({
-      entry,
-      formKey: selectedForm.formKey,
-      surface: selectedForm.surface,
-      verbScore,
-      formScore: selectedForm.score,
-      reasons,
-    });
+    candidates.push(selectedCard);
   }
 
   candidates.sort((left, right) => {

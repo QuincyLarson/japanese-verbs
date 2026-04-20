@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { ensureSectionSession, recordSectionAttempt } from '../lib/curriculumProgress';
 import { applyPreset, toggleCustomForm } from '../lib/filters';
 import { loadVerbCatalog } from '../lib/dataset';
 import { createEmptyProgressStore, recordGrade } from '../lib/progress';
@@ -33,6 +34,13 @@ interface AppStateValue {
   setStudySettings: (updater: StudySettings | ((current: StudySettings) => StudySettings)) => void;
   applyStudyPreset: (presetId: FormPresetId) => void;
   toggleStudyForm: (formKey: FormKey) => void;
+  ensureCurriculumSectionSession: (sectionIndex: number, masteryKeys: string[]) => void;
+  recordCurriculumSectionAttempt: (
+    sectionIndex: number,
+    masteryKeys: string[],
+    masteryKey: string,
+    isCorrect: boolean,
+  ) => { completed: boolean };
   recordReview: (masteryKey: string, formKey: FormKey, grade: Grade) => void;
   exportPayload: () => ExportPayload;
   importPayload: (raw: string) => { ok: true } | { ok: false; error: string };
@@ -97,6 +105,43 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         ...current,
         study: toggleCustomForm(current.study, formKey),
       }));
+    },
+    ensureCurriculumSectionSession(sectionIndex, masteryKeys) {
+      setSettingsStore((current) => {
+        const nextCurriculum = ensureSectionSession(current.curriculum, sectionIndex, masteryKeys);
+
+        if (nextCurriculum === current.curriculum) {
+          return current;
+        }
+
+        return {
+          ...current,
+          curriculum: nextCurriculum,
+        };
+      });
+    },
+    recordCurriculumSectionAttempt(sectionIndex, masteryKeys, masteryKey, isCorrect) {
+      const initialResult = recordSectionAttempt(
+        settingsStore.curriculum,
+        sectionIndex,
+        masteryKeys,
+        masteryKey,
+        isCorrect,
+      );
+
+      setSettingsStore((current) => {
+        const result =
+          current.curriculum === settingsStore.curriculum
+            ? initialResult
+            : recordSectionAttempt(current.curriculum, sectionIndex, masteryKeys, masteryKey, isCorrect);
+
+        return {
+          ...current,
+          curriculum: result.curriculumState,
+        };
+      });
+
+      return { completed: initialResult.completed };
     },
     recordReview(masteryKey, formKey, grade) {
       setProgressStore((current) => recordGrade(current, masteryKey, formKey, grade));

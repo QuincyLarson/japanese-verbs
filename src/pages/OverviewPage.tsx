@@ -1,12 +1,24 @@
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
 import { useAppState } from '../app/AppState';
 
-function CheckIcon() {
+function CheckIcon({ animate = false }: { animate?: boolean }) {
   return (
-    <svg aria-hidden="true" className="unit-card__status-icon" viewBox="0 0 24 24">
-      <path d="M5 12.5 9.5 17 19 7.5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" />
+    <svg
+      aria-hidden="true"
+      className={animate ? 'unit-card__status-icon unit-card__status-icon--animated' : 'unit-card__status-icon'}
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M5 12.5 9.5 17 19 7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.4"
+      />
     </svg>
   );
 }
@@ -22,7 +34,12 @@ function SkipIcon() {
 }
 
 export function OverviewPage() {
-  const { verbs, progressStore, catalogStatus } = useAppState();
+  const { verbs, settingsStore, catalogStatus } = useAppState();
+  const [searchParams] = useSearchParams();
+  const [celebratingSectionIndex, setCelebratingSectionIndex] = useState<number | null>(null);
+  const sectionRefs = useRef<Record<number, HTMLLIElement | null>>({});
+  const completedSectionParam = searchParams.get('completedSection');
+  const completedSectionIndex = completedSectionParam ? Number.parseInt(completedSectionParam, 10) - 1 : null;
   const sections = useMemo(() => {
     if (catalogStatus !== 'ready') {
       return [];
@@ -31,22 +48,31 @@ export function OverviewPage() {
     const chunks = getCurriculumSections(verbs);
 
     const withCounts = chunks.map((entries, index) => {
-      const seenCount = entries.filter((entry) => (progressStore.items[entry.masteryKey]?.totalSeen ?? 0) > 0).length;
+      const masteryKeys = entries.map((entry) => entry.masteryKey);
+      const sectionProgress = getSectionProgress(settingsStore.curriculum, index, masteryKeys);
 
       return {
         id: `section-${index + 1}`,
         index,
         entries,
-        seenCount,
-        completed: seenCount === entries.length,
+        completedCount: sectionProgress.completedCount,
+        completed: sectionProgress.completed,
+        activeSession: sectionProgress.activeSession,
       };
     });
 
-    const furthestSeenIndex = withCounts.reduce((highest, section) => (section.seenCount > 0 ? section.index : highest), -1);
-    const currentIndex = withCounts.findIndex((section) => !section.completed && !(section.seenCount === 0 && section.index < furthestSeenIndex));
+    const furthestCompletedIndex = withCounts.reduce(
+      (highest, section) => (section.completed ? section.index : highest),
+      -1,
+    );
+    const activeSessionIndex = withCounts.findIndex((section) => section.activeSession && !section.completed);
+    const currentIndex =
+      activeSessionIndex !== -1
+        ? activeSessionIndex
+        : withCounts.findIndex((section) => !section.completed && section.index >= furthestCompletedIndex + 1);
 
     return withCounts.map((section) => {
-      const skipped = !section.completed && section.seenCount === 0 && section.index < furthestSeenIndex;
+      const skipped = !section.completed && section.completedCount === 0 && section.index < furthestCompletedIndex;
 
       return {
         ...section,
@@ -55,7 +81,36 @@ export function OverviewPage() {
         preview: section.entries.slice(0, 3).map((entry) => entry.orthography).join(' / '),
       };
     });
-  }, [catalogStatus, progressStore, verbs]);
+  }, [catalogStatus, settingsStore.curriculum, verbs]);
+
+  useLayoutEffect(() => {
+    if (completedSectionIndex === null || completedSectionIndex < 0) {
+      return;
+    }
+
+    const targetSection = sectionRefs.current[completedSectionIndex];
+
+    if (!targetSection || typeof window === 'undefined') {
+      return;
+    }
+
+    const { top, height } = targetSection.getBoundingClientRect();
+    const targetTop = window.scrollY + top - window.innerHeight / 2 + height / 2;
+    const maxScrollTop = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
+    window.scrollTo({
+      top: Math.max(0, Math.min(targetTop, maxScrollTop)),
+      left: 0,
+      behavior: 'auto',
+    });
+    setCelebratingSectionIndex(completedSectionIndex);
+
+    const timeoutId = window.setTimeout(() => {
+      setCelebratingSectionIndex((current) => (current === completedSectionIndex ? null : current));
+    }, 1800);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [completedSectionIndex, sections.length]);
 
   if (catalogStatus !== 'ready') {
     return (
@@ -92,11 +147,15 @@ export function OverviewPage() {
             {sections.map((section) => (
               <li
                 key={section.id}
+                ref={(node) => {
+                  sectionRefs.current[section.index] = node;
+                }}
                 className={[
                   'unit-card__subsection',
                   section.completed ? 'is-completed' : '',
                   section.skipped ? 'is-skipped' : '',
                   section.isCurrent ? 'is-current' : '',
+                  celebratingSectionIndex === section.index ? 'is-celebrating' : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -111,7 +170,17 @@ export function OverviewPage() {
                       .filter(Boolean)
                       .join(' ')}
                   >
-                    {section.completed ? <CheckIcon /> : section.skipped ? <SkipIcon /> : null}
+                    {section.completed ? <CheckIcon animate={celebratingSectionIndex === section.index} /> : section.skipped ? <SkipIcon /> : null}
+                    {celebratingSectionIndex === section.index ? (
+                      <span className="unit-card__confetti" aria-hidden="true">
+                        {Array.from({ length: 10 }, (_, confettiIndex) => (
+                          <span
+                            className={`unit-card__confetti-piece unit-card__confetti-piece--${(confettiIndex % 5) + 1}`}
+                            key={`${section.id}-confetti-${confettiIndex}`}
+                          />
+                        ))}
+                      </span>
+                    ) : null}
                   </span>
                   <span className="unit-card__step">{String(section.index + 1).padStart(3, '0')}</span>
                 </div>
@@ -125,7 +194,7 @@ export function OverviewPage() {
                   </h3>
                   <p>{section.preview}</p>
                   <p className="unit-card__progress-copy">
-                    {section.seenCount}/{section.entries.length} cards seen
+                    {section.completedCount}/{section.entries.length} cards cleared
                   </p>
                 </div>
               </li>

@@ -24,6 +24,7 @@
 - `feat: add overview home and design system`
 - `feat: add local progress and review workspace`
 - `test: add review checklist and polish`
+- `feat: add persistent curriculum section completion flow`
 
 ## Session Log
 
@@ -57,3 +58,4 @@
 - 2026-04-19: Added an immediate route-change scroll reset in the app shell so curriculum jumps and section changes always land at the top of the view without smooth scrolling, and covered that behavior with an `AppLayout` navigation test.
 - 2026-04-19: Simplified the challenge card by removing the adaptive helper copy from the active prompt state, changing the input prompt to `Type pronunciation here`, enlarging the Japanese form, and constraining the input block so it stays inside the card margins on narrow screens.
 - 2026-04-19: Replaced the revealed-state feedback banner with inline result copy so correct answers read `Correct! You'll see this again in ...`, while incorrect answers show `Incorrect. You guessed ...` in red above the correct reading.
+- 2026-04-19: Reworked section study into a persistent local stack that only completes after every card is answered correctly, moves misses to the back of the queue, restores partial section progress for returning users, records section reviews into the shared endless-mode scheduler, and returns completed sections to the curriculum with a centered checkmark/confetti celebration instead of an empty-state page.

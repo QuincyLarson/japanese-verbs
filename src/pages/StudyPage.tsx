@@ -9,28 +9,8 @@ import { matchesReadingInput } from '../lib/romaji';
 import { parsePositiveRouteNumber } from '../lib/routes';
 import { canSpeakJapanese, primeJapaneseVoices, speakJapanese } from '../lib/speech';
 import { FORM_PRESETS } from '../lib/dataset';
+import { formatDelayLabel } from '../lib/delayLabel';
 import { createStudySnapshot, getScheduledCardForEntry, type ScheduledCard } from '../lib/scheduler';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function formatDelayLabel(dueAt: string, now: Date) {
-  const diffMs = Math.max(0, Date.parse(dueAt) - now.getTime());
-
-  if (diffMs < DAY_MS) {
-    const minutes = Math.max(1, Math.round(diffMs / (60 * 1000)));
-
-    if (minutes < 60) {
-      return `${minutes} minute${minutes === 1 ? '' : 's'}`;
-    }
-
-    const hours = Math.round(diffMs / (60 * 60 * 1000));
-    return `${hours} hour${hours === 1 ? '' : 's'}`;
-  }
-
-  const days = diffMs / DAY_MS;
-  const roundedDays = days < 10 ? Math.round(days * 10) / 10 : Math.round(days);
-  return `${roundedDays} day${roundedDays === 1 ? '' : 's'}`;
-}
 
 export function StudyPage() {
   const {

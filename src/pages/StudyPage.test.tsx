@@ -133,7 +133,9 @@ describe('StudyPage', () => {
   it('uses the section route parameter to show the matching section label', async () => {
     renderStudyPage(getSectionStudyPath(1));
 
-    expect(await screen.findByText(/loading section stack/i)).toBeInTheDocument();
-    expect(screen.getAllByText('Section 001')).toHaveLength(2);
+    expect(await screen.findByText(/loading lesson stack/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /curriculum/i })).toHaveAttribute('href', '/');
+    expect(screen.getByText('Lesson 1')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /essential everyday verbs/i })).toBeInTheDocument();
   });
 });

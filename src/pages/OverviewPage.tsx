@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
+import { getLessonLabel } from '../lib/lessons';
 import { getCompletedSectionIndexFromNavigationState, getSectionStudyPath } from '../lib/routes';
 import { useAppState } from '../app/AppState';
 
@@ -171,7 +172,7 @@ export function OverviewPage() {
           Our curriculum is adaptive. Start typing the pronunciation and the deck will adapt to your current
           proficiency level and give you harder verbs as you improve.
         </p>
-        <p className="linear-curriculum__meta">Each section contains 10 verbs. Completed sections are checked off.</p>
+        <p className="linear-curriculum__meta">Each lesson contains 10 verbs. Completed lessons are checked off.</p>
         <Link className="block-link curriculum-start" to="/study">
           Next verb
         </Link>
@@ -182,10 +183,10 @@ export function OverviewPage() {
           <div className="unit-card__head">
             <h2 id="home-sequence-title">Curriculum</h2>
             <div className="unit-card__meta">
-              <p className="unit-card__count">{sections.length} sections</p>
+              <p className="unit-card__count">{sections.length} lessons</p>
             </div>
           </div>
-          <ol className="unit-card__subsections" aria-label="Curriculum sections">
+          <ol className="unit-card__subsections" aria-label="Curriculum lessons">
             {sections.map((section) => (
               <li
                 key={section.id}
@@ -229,7 +230,7 @@ export function OverviewPage() {
                 <div className="unit-card__copy">
                   <h3 className="unit-card__title-row">
                     <Link className="unit-card__link" to={getSectionStudyPath(section.index + 1)}>
-                      Section {String(section.index + 1).padStart(3, '0')}
+                      {getLessonLabel(section.index + 1)}
                     </Link>
                     {section.completed ? <span className="unit-card__badge">Completed</span> : null}
                     {section.skipped ? <span className="unit-card__badge">Skipped</span> : null}

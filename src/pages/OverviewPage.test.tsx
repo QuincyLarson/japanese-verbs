@@ -73,6 +73,7 @@ describe('OverviewPage', () => {
     );
 
     expect(await screen.findByRole('heading', { name: /curriculum overview/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /lesson 1/i })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
 

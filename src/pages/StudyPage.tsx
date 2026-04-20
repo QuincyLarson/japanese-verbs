@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
 import { getInflectionExplanation } from '../lib/conjugation';
 import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
+import { getLessonLabel, getLessonTitle } from '../lib/lessons';
 import { getOrCreateProgress, previewGradeResult } from '../lib/progress';
 import { matchesReadingInput } from '../lib/romaji';
 import { parsePositiveRouteNumber } from '../lib/routes';
@@ -33,6 +34,8 @@ export function StudyPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const selectedSection = parsePositiveRouteNumber(sectionNumber);
   const sectionIndex = selectedSection !== null ? selectedSection - 1 : null;
+  const selectedLessonLabel = selectedSection !== null ? getLessonLabel(selectedSection) : null;
+  const selectedLessonTitle = selectedSection !== null ? getLessonTitle(selectedSection) : null;
 
   useEffect(() => {
     setActiveCard(null);
@@ -237,8 +240,19 @@ export function StudyPage() {
   return (
     <section className="page-stack">
       <article className={`study-sheet stack${isRevealed ? ' study-sheet--revealed' : ''}`}>
-        {selectedSection && Number.isFinite(selectedSection) ? (
-          <p className="eyebrow">Section {String(selectedSection).padStart(3, '0')}</p>
+        {selectedLessonLabel ? (
+          <div className="study-heading">
+            <nav aria-label="Breadcrumb" className="breadcrumb">
+              <Link className="breadcrumb__link" to="/">
+                Curriculum
+              </Link>
+              <span aria-hidden="true" className="breadcrumb__separator">
+                &gt;
+              </span>
+              <span className="breadcrumb__current">{selectedLessonLabel}</span>
+            </nav>
+            {selectedLessonTitle ? <h1 className="study-heading__title">{selectedLessonTitle}</h1> : null}
+          </div>
         ) : null}
 
         {currentCard ? (
@@ -328,9 +342,8 @@ export function StudyPage() {
           </>
         ) : sectionIndex !== null ? (
           <div className="stack">
-            <p className="eyebrow">Section {String(selectedSection).padStart(3, '0')}</p>
-            <h3>Loading section stack</h3>
-            <p className="muted-text">Restoring your saved progress for this section.</p>
+            <h3>Loading lesson stack</h3>
+            <p className="muted-text">Restoring your saved progress for this lesson.</p>
           </div>
         ) : (
           <div className="stack">

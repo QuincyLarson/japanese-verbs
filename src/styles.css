@@ -273,6 +273,17 @@ button {
   gap: 0.6rem;
 }
 
+.study-heading {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.study-heading__title {
+  margin: 0;
+  font-size: clamp(1rem, 3.4vw, 1.3rem);
+  line-height: 1.2;
+}
+
 .linear-curriculum {
   width: min(100%, 44rem);
   margin: 0 auto;
@@ -299,6 +310,35 @@ button {
 .linear-curriculum__meta {
   color: var(--text-muted);
   font-size: 0.95rem;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.breadcrumb__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.breadcrumb__link:hover {
+  color: var(--accent);
+}
+
+.breadcrumb__separator {
+  flex-shrink: 0;
+}
+
+.breadcrumb__current {
+  min-width: 0;
+  color: var(--text-main);
 }
 
 .unit-card {

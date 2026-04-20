@@ -1217,10 +1217,20 @@ p {
   color: var(--danger-text);
 }
 
+.answer-line--example {
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.32;
+}
+
 .answer-note {
   color: var(--text-muted);
   font-size: 0.93rem;
   line-height: 1.42;
+}
+
+.answer-note--translation {
+  color: var(--text-main);
 }
 
 @media (max-width: 480px) {
@@ -1286,6 +1296,10 @@ p {
   .answer-line {
     font-size: 0.85rem;
     line-height: 1.24;
+  }
+
+  .answer-line--example {
+    font-size: 0.9rem;
   }
 
   .answer-note {
@@ -1360,6 +1374,10 @@ p {
 .study-sheet--tight .answer-line {
   font-size: 0.79rem;
   line-height: 1.16;
+}
+
+.study-sheet--tight .answer-line--example {
+  font-size: 0.82rem;
 }
 
 .study-sheet--tight .answer-note {

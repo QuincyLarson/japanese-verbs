@@ -1,5 +1,53 @@
 import type { FormKey, SurfaceForm, VerbEntry } from '../types/verb';
 
+interface EnglishVerbForms {
+  gerund: string;
+  past: string;
+  pastParticiple: string;
+}
+
+export interface InflectionExample {
+  japanese: string;
+  english: string;
+}
+
+const IRREGULAR_ENGLISH_VERBS: Record<string, EnglishVerbForms> = {
+  be: { gerund: 'being', past: 'was', pastParticiple: 'been' },
+  begin: { gerund: 'beginning', past: 'began', pastParticiple: 'begun' },
+  bring: { gerund: 'bringing', past: 'brought', pastParticiple: 'brought' },
+  buy: { gerund: 'buying', past: 'bought', pastParticiple: 'bought' },
+  come: { gerund: 'coming', past: 'came', pastParticiple: 'come' },
+  do: { gerund: 'doing', past: 'did', pastParticiple: 'done' },
+  feel: { gerund: 'feeling', past: 'felt', pastParticiple: 'felt' },
+  find: { gerund: 'finding', past: 'found', pastParticiple: 'found' },
+  get: { gerund: 'getting', past: 'got', pastParticiple: 'gotten' },
+  give: { gerund: 'giving', past: 'gave', pastParticiple: 'given' },
+  go: { gerund: 'going', past: 'went', pastParticiple: 'gone' },
+  have: { gerund: 'having', past: 'had', pastParticiple: 'had' },
+  hear: { gerund: 'hearing', past: 'heard', pastParticiple: 'heard' },
+  keep: { gerund: 'keeping', past: 'kept', pastParticiple: 'kept' },
+  know: { gerund: 'knowing', past: 'knew', pastParticiple: 'known' },
+  leave: { gerund: 'leaving', past: 'left', pastParticiple: 'left' },
+  let: { gerund: 'letting', past: 'let', pastParticiple: 'let' },
+  make: { gerund: 'making', past: 'made', pastParticiple: 'made' },
+  meet: { gerund: 'meeting', past: 'met', pastParticiple: 'met' },
+  put: { gerund: 'putting', past: 'put', pastParticiple: 'put' },
+  read: { gerund: 'reading', past: 'read', pastParticiple: 'read' },
+  run: { gerund: 'running', past: 'ran', pastParticiple: 'run' },
+  say: { gerund: 'saying', past: 'said', pastParticiple: 'said' },
+  see: { gerund: 'seeing', past: 'saw', pastParticiple: 'seen' },
+  sell: { gerund: 'selling', past: 'sold', pastParticiple: 'sold' },
+  sit: { gerund: 'sitting', past: 'sat', pastParticiple: 'sat' },
+  sleep: { gerund: 'sleeping', past: 'slept', pastParticiple: 'slept' },
+  speak: { gerund: 'speaking', past: 'spoke', pastParticiple: 'spoken' },
+  stand: { gerund: 'standing', past: 'stood', pastParticiple: 'stood' },
+  take: { gerund: 'taking', past: 'took', pastParticiple: 'taken' },
+  teach: { gerund: 'teaching', past: 'taught', pastParticiple: 'taught' },
+  tell: { gerund: 'telling', past: 'told', pastParticiple: 'told' },
+  think: { gerund: 'thinking', past: 'thought', pastParticiple: 'thought' },
+  write: { gerund: 'writing', past: 'wrote', pastParticiple: 'written' },
+};
+
 const A_ROW: Record<string, string> = {
   'う': 'わ',
   'く': 'か',
@@ -50,6 +98,205 @@ const O_ROW: Record<string, string> = {
 
 function form(jp: string, reading: string): SurfaceForm {
   return { jp, reading };
+}
+
+function sanitizeEnglishGloss(entry: Pick<VerbEntry, 'englishPrimary' | 'englishGlosses'>) {
+  const source =
+    entry.englishGlosses.find((gloss) => gloss.trim().length > 0 && gloss.length <= 36) ?? entry.englishPrimary;
+
+  const normalized = source
+    .replace(/\([^)]*\)/g, '')
+    .split(/[;/]/)[0]
+    ?.trim()
+    .replace(/^to\s+/i, '')
+    .replace(/\s+/g, ' ');
+
+  return normalized || entry.englishPrimary.replace(/\([^)]*\)/g, '').trim() || entry.englishPrimary;
+}
+
+function inflectEnglishBaseWord(word: string, form: keyof EnglishVerbForms) {
+  const irregular = IRREGULAR_ENGLISH_VERBS[word.toLowerCase()];
+
+  if (irregular) {
+    return irregular[form];
+  }
+
+  if (form === 'gerund') {
+    if (word.endsWith('ie')) {
+      return `${word.slice(0, -2)}ying`;
+    }
+
+    if (word.endsWith('e') && !/(ee|oe|ye)$/.test(word)) {
+      return `${word.slice(0, -1)}ing`;
+    }
+
+    if (/[aeiou][bcdfghjklmnpqrstvwxyz]$/i.test(word) && !/[wxy]$/i.test(word)) {
+      return `${word}${word.slice(-1)}ing`;
+    }
+
+    return `${word}ing`;
+  }
+
+  if (word.endsWith('e')) {
+    return `${word}d`;
+  }
+
+  if (/[bcdfghjklmnpqrstvwxyz]y$/i.test(word)) {
+    return `${word.slice(0, -1)}ied`;
+  }
+
+  if (/[aeiou][bcdfghjklmnpqrstvwxyz]$/i.test(word) && !/[wxy]$/i.test(word)) {
+    return `${word}${word.slice(-1)}ed`;
+  }
+
+  return `${word}ed`;
+}
+
+function inflectEnglishGloss(gloss: string, form: keyof EnglishVerbForms) {
+  const [firstWord, ...restWords] = gloss.split(' ');
+
+  if (!firstWord) {
+    return gloss;
+  }
+
+  const inflectedFirstWord = inflectEnglishBaseWord(firstWord, form);
+  return [inflectedFirstWord, ...restWords].join(' ');
+}
+
+function capitalizeSentence(value: string) {
+  if (!value) {
+    return value;
+  }
+
+  return `${value[0].toUpperCase()}${value.slice(1)}`;
+}
+
+function appendExampleObject(gloss: string, entry: Pick<VerbEntry, 'transitivity'>) {
+  return entry.transitivity === 'transitive' || entry.transitivity === 'both' ? `${gloss} it` : gloss;
+}
+
+function buildJapaneseExample(surface: SurfaceForm, formKey: FormKey) {
+  switch (formKey) {
+    case 'dictionary':
+      return `もう${surface.jp}。`;
+    case 'negative':
+      return `まだ${surface.jp}。`;
+    case 'past':
+      return `さっき${surface.jp}。`;
+    case 'te':
+      return `今、${surface.jp}いる。`;
+    case 'potential':
+      return `今日は${surface.jp}。`;
+    case 'passive':
+      return `また${surface.jp}。`;
+    case 'causative':
+      return `子に${surface.jp}。`;
+    case 'causativePassive':
+      return `また${surface.jp}。`;
+    case 'polite':
+      return `今、${surface.jp}。`;
+    case 'politePast':
+      return `さっき${surface.jp}。`;
+    case 'politeNegative':
+      return `今日は${surface.jp}。`;
+    case 'volitional':
+      return `一緒に${surface.jp}。`;
+    case 'ba':
+      return `${surface.jp}、いい。`;
+    case 'tara':
+      return `${surface.jp}、帰る。`;
+    case 'imperative':
+      return `早く${surface.jp}。`;
+    case 'prohibitive':
+      return `もう${surface.jp}。`;
+    default:
+      return `${surface.jp}。`;
+  }
+}
+
+function buildBeExample(formKey: FormKey) {
+  switch (formKey) {
+    case 'dictionary':
+    case 'polite':
+      return 'Someone is there now.';
+    case 'negative':
+    case 'politeNegative':
+      return 'No one is there yet.';
+    case 'past':
+    case 'politePast':
+      return 'Someone was there earlier.';
+    case 'te':
+      return 'Someone is there now.';
+    case 'potential':
+      return 'Someone can stay there.';
+    case 'passive':
+      return 'Someone is affected again.';
+    case 'causative':
+      return 'I make someone stay there.';
+    case 'causativePassive':
+      return 'I am made to stay there.';
+    case 'volitional':
+      return "Let's stay there.";
+    case 'ba':
+      return "If someone is there, that's fine.";
+    case 'tara':
+      return 'If someone is there, I head home.';
+    case 'imperative':
+      return 'Be there now.';
+    case 'prohibitive':
+      return 'Do not stay there.';
+    default:
+      return 'Someone is there.';
+  }
+}
+
+function buildEnglishExample(entry: Pick<VerbEntry, 'englishPrimary' | 'englishGlosses' | 'transitivity'>, formKey: FormKey) {
+  const gloss = sanitizeEnglishGloss(entry);
+
+  if (gloss === 'be') {
+    return buildBeExample(formKey);
+  }
+
+  const basePhrase = appendExampleObject(gloss, entry);
+  const gerundPhrase = appendExampleObject(inflectEnglishGloss(gloss, 'gerund'), entry);
+  const pastPhrase = appendExampleObject(inflectEnglishGloss(gloss, 'past'), entry);
+  const pastParticiplePhrase = inflectEnglishGloss(gloss, 'pastParticiple');
+
+  switch (formKey) {
+    case 'dictionary':
+    case 'polite':
+      return `I ${basePhrase} now.`;
+    case 'negative':
+    case 'politeNegative':
+      return `I do not ${basePhrase} yet.`;
+    case 'past':
+    case 'politePast':
+      return `I ${pastPhrase} earlier.`;
+    case 'te':
+      return `I am ${gerundPhrase} now.`;
+    case 'potential':
+      return `I can ${basePhrase} today.`;
+    case 'passive':
+      return entry.transitivity === 'transitive' || entry.transitivity === 'both'
+        ? `It gets ${pastParticiplePhrase} again.`
+        : 'It happens to someone again.';
+    case 'causative':
+      return `I make someone ${basePhrase}.`;
+    case 'causativePassive':
+      return `I am made to ${basePhrase} again.`;
+    case 'volitional':
+      return `Let's ${basePhrase} together.`;
+    case 'ba':
+      return `If I ${basePhrase}, that's fine.`;
+    case 'tara':
+      return `After I ${basePhrase}, I head home.`;
+    case 'imperative':
+      return `${capitalizeSentence(basePhrase)} now.`;
+    case 'prohibitive':
+      return `Do not ${basePhrase} anymore.`;
+    default:
+      return capitalizeSentence(gloss);
+  }
 }
 
 export function conjugateFromProfile(entry: Pick<VerbEntry, 'orthography' | 'reading' | 'rawPos' | 'verbClass'>): Partial<Record<FormKey, SurfaceForm | null>> {
@@ -243,4 +490,15 @@ export function getInflectionExplanation(formKey: FormKey, baseMeaning: string):
     default:
       return [];
   }
+}
+
+export function getInflectionExample(
+  entry: Pick<VerbEntry, 'englishPrimary' | 'englishGlosses' | 'transitivity'>,
+  surface: SurfaceForm,
+  formKey: FormKey,
+): InflectionExample {
+  return {
+    japanese: buildJapaneseExample(surface, formKey),
+    english: buildEnglishExample(entry, formKey),
+  };
 }

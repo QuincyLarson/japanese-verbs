@@ -158,7 +158,9 @@ function renderStudyPage(initialEntry = '/study') {
     fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });
 
     expect(await screen.findByText(/^Incorrect\.$/i)).toBeInTheDocument();
-    expect(screen.getByText(/correct reading:/i)).toBeInTheDocument();
+    expect(screen.queryByText(/correct reading:/i)).not.toBeInTheDocument();
+    expect(screen.getByText('もう読む。')).toBeInTheDocument();
+    expect(screen.getByText('I read it now.')).toBeInTheDocument();
     expect(screen.queryByText(/you guessed/i)).not.toBeInTheDocument();
 
     const textbox = screen.getByRole('textbox', { name: /type pronunciation here/i });

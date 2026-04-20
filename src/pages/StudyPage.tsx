@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
-import { getInflectionExplanation } from '../lib/conjugation';
+import { getInflectionExample } from '../lib/conjugation';
 import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
 import { formatEnglishDefinition } from '../lib/definitions';
@@ -167,9 +167,7 @@ export function StudyPage() {
   }
 
   const currentCard = activeCard ?? preferredCard;
-  const explanation = currentCard
-    ? getInflectionExplanation(currentCard.formKey, currentCard.entry.englishPrimary)
-    : [];
+  const example = currentCard ? getInflectionExample(currentCard.entry, currentCard.surface, currentCard.formKey) : null;
   const cleanedTypedAnswer = typedAnswer.trim();
   const acceptedJapaneseAnswers = currentCard
     ? currentCard.formKey === 'dictionary'
@@ -381,21 +379,14 @@ export function StudyPage() {
                       ({FORM_PRESETS[currentCard.formKey].label})
                     </p>
                   ) : null}
-                  {revealedIsCorrect === false ? (
-                    <p className="answer-line">
-                      Correct reading: <strong lang="ja">{currentCard.surface.reading}</strong>
-                    </p>
+                  {example ? (
+                    <>
+                      <p className="answer-line answer-line--example" lang="ja">
+                        {example.japanese}
+                      </p>
+                      <p className="answer-note answer-note--translation">{example.english}</p>
+                    </>
                   ) : null}
-                  {explanation.map((line) => (
-                    <p className="answer-note" key={line}>
-                      {line}
-                    </p>
-                  ))}
-                  {currentCard.entry.inflectionNotes.map((note) => (
-                    <p className="answer-note" key={note}>
-                      {note}
-                    </p>
-                  ))}
                 </div>
                 <div className="study-actions">
                   <button

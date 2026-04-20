@@ -101,7 +101,6 @@ export function StudyPage() {
     : [];
   const cleanedTypedAnswer = typedAnswer.trim();
   const typedAnswerMatches = currentCard ? matchesReadingInput(cleanedTypedAnswer, currentCard.surface.reading) : false;
-  const showPronunciationHint = progressStore.meta.totalReviews < 4;
   const shouldShowSurfaceDetails =
     currentCard && (currentCard.surface.jp !== currentCard.entry.orthography || currentCard.formKey !== 'dictionary');
 
@@ -200,23 +199,17 @@ export function StudyPage() {
                 {currentCard.surface.jp}
               </p>
               <div className="study-input-block stack-sm">
-                {showPronunciationHint ? (
-                  <p className="helper-note">
-                    Our curriculum is adaptive. Just start typing the pronunciation and we&apos;ll adapt to your current
-                    proficiency level and give you harder verbs.
-                  </p>
-                ) : null}
                 {!isRevealed ? (
                   <>
                     <input
                       ref={inputRef}
-                      aria-label="Type the pronunciation in romaji or hiragana"
+                      aria-label="Type pronunciation here"
                       autoCapitalize="none"
                       autoComplete="off"
                       autoCorrect="off"
                       className="text-input surface-response__input"
                       onChange={(event) => setTypedAnswer(event.target.value)}
-                      placeholder={showPronunciationHint ? 'type the pronunciation' : ''}
+                      placeholder="Type pronunciation here"
                       spellCheck={false}
                       type="text"
                       value={typedAnswer}

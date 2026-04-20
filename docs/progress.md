@@ -55,3 +55,4 @@
 - 2026-04-19: Reworked the narrow-screen navbar into a single-line brand row with theme icon plus hamburger toggle, and moved the nav links into a collapsible mobile menu so the header never wraps and consumes phone-height space.
 - 2026-04-19: Fixed repeated study-audio playback by queuing a short restart delay after canceling active speech, which makes the `Hear again [space]` replay path more reliable in mobile and in-app browsers.
 - 2026-04-19: Added an immediate route-change scroll reset in the app shell so curriculum jumps and section changes always land at the top of the view without smooth scrolling, and covered that behavior with an `AppLayout` navigation test.
+- 2026-04-19: Simplified the challenge card by removing the adaptive helper copy from the active prompt state, changing the input prompt to `Type pronunciation here`, enlarging the Japanese form, and constraining the input block so it stays inside the card margins on narrow screens.

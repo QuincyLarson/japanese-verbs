@@ -72,7 +72,7 @@ describe('StudyPage', () => {
       </MemoryRouter>,
     );
 
-    fireEvent.change(screen.getByRole('textbox', { name: /type the pronunciation/i }), {
+    fireEvent.change(screen.getByRole('textbox', { name: /type pronunciation here/i }), {
       target: { value: 'yomu' },
     });
     fireEvent.keyDown(window, { key: 'Enter', code: 'Enter' });

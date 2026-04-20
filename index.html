@@ -7,7 +7,14 @@
     <script>
       (function restoreStaticRedirect() {
         var redirectKey = 'jp-verbs-static-redirect-path';
-        var redirectPath = window.sessionStorage.getItem(redirectKey);
+        var currentUrl = new URL(window.location.href);
+        var redirectPath = currentUrl.searchParams.get('redirect');
+
+        if (redirectPath) {
+          currentUrl.searchParams.delete('redirect');
+        } else {
+          redirectPath = window.sessionStorage.getItem(redirectKey);
+        }
 
         if (!redirectPath) {
           return;
@@ -15,7 +22,7 @@
 
         window.sessionStorage.removeItem(redirectKey);
 
-        var currentPath = window.location.pathname + window.location.search + window.location.hash;
+        var currentPath = currentUrl.pathname + currentUrl.search + currentUrl.hash;
 
         if (redirectPath !== currentPath) {
           window.history.replaceState(window.history.state, '', redirectPath);

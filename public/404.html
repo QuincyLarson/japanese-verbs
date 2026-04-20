@@ -16,7 +16,7 @@
             : '/';
 
         window.sessionStorage.setItem(redirectKey, redirectPath);
-        window.location.replace(appBase);
+        window.location.replace(appBase + '?redirect=' + encodeURIComponent(redirectPath));
       })();
     </script>
   </head>

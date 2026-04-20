@@ -201,6 +201,33 @@ export function normalizeLatinSearch(value: string) {
     .replace(/[^a-z0-9]/g, '');
 }
 
+const IME_ROMAJI_PATTERNS: Array<readonly [RegExp, string]> = [
+  [/(?:sha|sya)/g, 'sya'],
+  [/(?:shu|syu)/g, 'syu'],
+  [/(?:sho|syo)/g, 'syo'],
+  [/(?:cha|tya|cya)/g, 'tya'],
+  [/(?:chu|tyu|cyu)/g, 'tyu'],
+  [/(?:cho|tyo|cyo)/g, 'tyo'],
+  [/(?:ja|jya|zya)/g, 'zya'],
+  [/(?:ju|jyu|zyu)/g, 'zyu'],
+  [/(?:jo|jyo|zyo)/g, 'zyo'],
+  [/(?:shi|si)/g, 'si'],
+  [/(?:chi|ti)/g, 'ti'],
+  [/(?:tsu|tu)/g, 'tu'],
+  [/(?:fu|hu)/g, 'hu'],
+  [/(?:ji|zi)/g, 'zi'],
+];
+
+export function normalizeRomajiForMatch(value: string) {
+  let normalized = normalizeLatinSearch(value);
+
+  for (const [pattern, replacement] of IME_ROMAJI_PATTERNS) {
+    normalized = normalized.replace(pattern, replacement);
+  }
+
+  return normalized;
+}
+
 export function normalizeKanaText(value: string) {
   return toHiragana(value.normalize('NFKC')).replace(/[^ぁ-ゖ゙゚ー]/g, '');
 }
@@ -213,10 +240,10 @@ export function matchesReadingInput(input: string, expectedReading: string) {
     return true;
   }
 
-  const normalizedInputLatin = normalizeLatinSearch(input);
+  const normalizedInputLatin = normalizeRomajiForMatch(input);
   if (!normalizedInputLatin) {
     return false;
   }
 
-  return normalizedInputLatin === normalizeLatinSearch(kanaToRomaji(normalizedExpectedKana));
+  return normalizedInputLatin === normalizeRomajiForMatch(kanaToRomaji(normalizedExpectedKana));
 }

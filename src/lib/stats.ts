@@ -1,6 +1,6 @@
 import { FORM_ORDER, FORM_PRESETS } from './dataset';
 import { getAccuracy, getWeaknessScore, hasRecentMistake, isBurned, isDue } from './progress';
-import { kanaToRomaji, normalizeLatinSearch } from './romaji';
+import { kanaToRomaji, normalizeRomajiForMatch } from './romaji';
 import type { ProgressStore } from '../types/study';
 import type { FormKey, VerbEntry } from '../types/verb';
 
@@ -158,7 +158,7 @@ export function listWeakestVerbs(verbs: VerbEntry[], progressStore: ProgressStor
 
 export function searchVerbs(verbs: VerbEntry[], query: string): VerbEntry[] {
   const trimmed = query.trim().toLowerCase();
-  const normalizedLatin = normalizeLatinSearch(query);
+  const normalizedLatin = normalizeRomajiForMatch(query);
 
   if (!trimmed) {
     return verbs;
@@ -186,7 +186,7 @@ export function searchVerbs(verbs: VerbEntry[], query: string): VerbEntry[] {
       entry.reading,
       ...entry.sameSpellingOtherReadings.map((reading) => reading.reading),
     ]
-      .map((value) => normalizeLatinSearch(kanaToRomaji(value)))
+      .map((value) => normalizeRomajiForMatch(kanaToRomaji(value)))
       .filter(Boolean);
 
     return romanizedHaystacks.some((value) => value.includes(normalizedLatin));

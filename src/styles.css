@@ -592,7 +592,6 @@ button {
 .stat-block,
 .workspace-card,
 .detail-card,
-.surface-block,
 .form-row,
 .mini-stats > div,
 .debug-box {
@@ -933,6 +932,8 @@ p {
   gap: 1.2rem;
   min-height: min(22rem, 48dvh);
   padding: 0.7rem 0.4rem 0.6rem;
+  border: 0;
+  border-radius: 0;
   background: transparent;
   box-shadow: none;
   text-align: center;

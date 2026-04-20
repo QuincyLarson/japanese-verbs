@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { ensureSectionSession, recordSectionAttempt } from '../lib/curriculumProgress';
 import { applyPreset, toggleCustomForm } from '../lib/filters';
 import { loadVerbCatalog } from '../lib/dataset';
@@ -68,11 +68,11 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       });
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     saveProgressStore(progressStore);
   }, [progressStore]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     saveSettingsStore(settingsStore);
   }, [settingsStore]);
 

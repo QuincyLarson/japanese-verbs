@@ -150,7 +150,7 @@ function renderStudyPage(initialEntry = '/study') {
 
     expect(await screen.findByText(/loading lesson stack/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /curriculum/i })).toHaveAttribute('href', '/');
-    expect(screen.getByText('Lesson 1')).toBeInTheDocument();
+    expect(screen.getByText(/lesson 1:/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /essential everyday verbs/i })).toBeInTheDocument();
   });
 

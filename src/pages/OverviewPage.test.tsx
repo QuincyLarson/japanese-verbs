@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { getOverviewFocusState } from '../lib/routes';
 import { createDefaultSettingsStore } from '../lib/storage';
 import type { VerbEntry } from '../types/verb';
 import { OverviewPage } from './OverviewPage';
@@ -105,5 +106,50 @@ describe('OverviewPage', () => {
     expect(screen.getByRole('link', { name: /start lesson \[enter\]/i })).toHaveAttribute('href', '/study/section/2');
     expect(screen.getByRole('link', { name: /lesson 2/i })).toBeInTheDocument();
     expect(screen.getByText(/you are here/i)).toBeInTheDocument();
+  });
+
+  it('centers the current lesson when focus state is passed from a lesson route', async () => {
+    const scrollTo = vi.fn();
+
+    vi.stubGlobal('scrollTo', scrollTo);
+    window.scrollTo = scrollTo;
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      value: 0,
+    });
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      configurable: true,
+      value: 2200,
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      width: 0,
+      height: 100,
+      top: 900,
+      right: 0,
+      bottom: 1000,
+      left: 0,
+      x: 0,
+      y: 900,
+      toJSON: () => ({}),
+    });
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/', state: getOverviewFocusState(2) }]}>
+        <Routes>
+          <Route path="/" element={<OverviewPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole('heading', { name: /curriculum overview/i })).toBeInTheDocument();
+    expect(scrollTo).toHaveBeenCalledWith({
+      top: 550,
+      left: 0,
+      behavior: 'auto',
+    });
   });
 });

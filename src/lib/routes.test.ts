@@ -1,6 +1,9 @@
 import {
   getCompletedSectionIndexFromNavigationState,
+  getFocusSectionIndexFromNavigationState,
+  getOverviewFocusState,
   getPathFromLegacyHash,
+  getSectionNumberFromStudyPath,
   getSectionStudyPath,
   parsePositiveRouteNumber,
 } from './routes';
@@ -8,6 +11,8 @@ import {
 describe('routes', () => {
   it('builds and parses positive section route numbers', () => {
     expect(getSectionStudyPath(3)).toBe('/study/section/3');
+    expect(getSectionNumberFromStudyPath('/study/section/3')).toBe(3);
+    expect(getSectionNumberFromStudyPath('/study')).toBeNull();
     expect(parsePositiveRouteNumber('3')).toBe(3);
     expect(parsePositiveRouteNumber('0')).toBeNull();
     expect(parsePositiveRouteNumber('-1')).toBeNull();
@@ -26,5 +31,12 @@ describe('routes', () => {
     expect(getCompletedSectionIndexFromNavigationState({ completedSectionIndex: 4 })).toBe(4);
     expect(getCompletedSectionIndexFromNavigationState({ completedSectionIndex: -1 })).toBeNull();
     expect(getCompletedSectionIndexFromNavigationState(null)).toBeNull();
+  });
+
+  it('reads focus state from router navigation state', () => {
+    expect(getOverviewFocusState(4)).toEqual({ focusSectionIndex: 3 });
+    expect(getFocusSectionIndexFromNavigationState({ focusSectionIndex: 4 })).toBe(4);
+    expect(getFocusSectionIndexFromNavigationState({ focusSectionIndex: -1 })).toBeNull();
+    expect(getFocusSectionIndexFromNavigationState(null)).toBeNull();
   });
 });

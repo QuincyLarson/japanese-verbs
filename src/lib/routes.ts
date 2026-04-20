@@ -1,8 +1,10 @@
 export interface OverviewNavigationState {
   completedSectionIndex?: number | null;
+  focusSectionIndex?: number | null;
 }
 
 const LEGACY_HASH_PREFIX = '#/';
+const STUDY_SECTION_PATH_PATTERN = /^\/study\/section\/(\d+)$/;
 
 export function parsePositiveRouteNumber(value: string | undefined | null) {
   if (!value) {
@@ -17,6 +19,18 @@ export function getSectionStudyPath(sectionNumber: number) {
   return `/study/section/${sectionNumber}`;
 }
 
+export function getSectionNumberFromStudyPath(pathname: string) {
+  const match = pathname.match(STUDY_SECTION_PATH_PATTERN);
+
+  return parsePositiveRouteNumber(match?.[1] ?? null);
+}
+
+export function getOverviewFocusState(sectionNumber: number) {
+  return {
+    focusSectionIndex: sectionNumber - 1,
+  } satisfies OverviewNavigationState;
+}
+
 export function getCompletedSectionIndexFromNavigationState(state: unknown) {
   if (!state || typeof state !== 'object') {
     return null;
@@ -26,6 +40,18 @@ export function getCompletedSectionIndexFromNavigationState(state: unknown) {
 
   return typeof completedSectionIndex === 'number' && Number.isInteger(completedSectionIndex) && completedSectionIndex >= 0
     ? completedSectionIndex
+    : null;
+}
+
+export function getFocusSectionIndexFromNavigationState(state: unknown) {
+  if (!state || typeof state !== 'object') {
+    return null;
+  }
+
+  const focusSectionIndex = (state as OverviewNavigationState).focusSectionIndex;
+
+  return typeof focusSectionIndex === 'number' && Number.isInteger(focusSectionIndex) && focusSectionIndex >= 0
+    ? focusSectionIndex
     : null;
 }
 

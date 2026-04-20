@@ -7,7 +7,7 @@ import { getCurriculumSections } from '../lib/curriculum';
 import { getLessonLabel, getLessonTitle } from '../lib/lessons';
 import { getOrCreateProgress, previewGradeResult } from '../lib/progress';
 import { matchesReadingInput } from '../lib/romaji';
-import { parsePositiveRouteNumber } from '../lib/routes';
+import { getOverviewFocusState, parsePositiveRouteNumber } from '../lib/routes';
 import { canSpeakJapanese, primeJapaneseVoices, speakJapanese } from '../lib/speech';
 import { FORM_PRESETS } from '../lib/dataset';
 import { formatDelayLabel } from '../lib/delayLabel';
@@ -50,6 +50,7 @@ export function StudyPage() {
   const sectionIndex = selectedSection !== null ? selectedSection - 1 : null;
   const selectedLessonLabel = selectedSection !== null ? getLessonLabel(selectedSection) : null;
   const selectedLessonTitle = selectedSection !== null ? getLessonTitle(selectedSection) : null;
+  const curriculumLinkState = selectedSection !== null ? getOverviewFocusState(selectedSection) : undefined;
 
   useEffect(() => {
     setActiveCard(null);
@@ -296,13 +297,13 @@ export function StudyPage() {
         {selectedLessonLabel ? (
           <div className="study-heading">
             <nav aria-label="Breadcrumb" className="breadcrumb">
-              <Link className="breadcrumb__link" to="/">
+              <Link className="breadcrumb__link" state={curriculumLinkState} to="/">
                 Curriculum
               </Link>
               <span aria-hidden="true" className="breadcrumb__separator">
                 &gt;
               </span>
-              <span className="breadcrumb__current">{selectedLessonLabel}</span>
+              <span className="breadcrumb__current">{selectedLessonLabel}:</span>
             </nav>
             {selectedLessonTitle ? <h1 className="study-heading__title">{selectedLessonTitle}</h1> : null}
           </div>

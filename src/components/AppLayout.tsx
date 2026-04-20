@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAppState } from '../app/AppState';
+import { getOverviewFocusState, getSectionNumberFromStudyPath } from '../lib/routes';
 import { HeaderSwitch } from './HeaderSwitch';
 
 const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean }> = [
@@ -45,6 +46,8 @@ export function AppLayout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const resolvedTheme =
     settingsStore.themePreference === 'system' ? systemTheme : settingsStore.themePreference;
+  const currentSectionNumber = getSectionNumberFromStudyPath(location.pathname);
+  const curriculumLinkState = currentSectionNumber !== null ? getOverviewFocusState(currentSectionNumber) : undefined;
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
@@ -89,7 +92,7 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <header className="top-bar" aria-label="Primary">
-        <Link className="brand" to="/">
+        <Link className="brand" state={curriculumLinkState} to="/">
           JapaneseVerbs.com
         </Link>
 

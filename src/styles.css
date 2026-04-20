@@ -280,7 +280,10 @@ button {
 
 .study-heading__title {
   margin: 0;
-  font-size: clamp(1rem, 3.4vw, 1.3rem);
+  color: var(--text-main);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -442,6 +445,11 @@ button {
 .unit-card__status-icon {
   width: 0.92rem;
   height: 0.92rem;
+}
+
+.unit-card__status-icon--skip {
+  width: 0.86rem;
+  height: 0.86rem;
 }
 
 .unit-card__status-icon--animated path {
@@ -1185,8 +1193,8 @@ p {
   }
 
   .study-heading__title {
-    font-size: clamp(0.9rem, 3.8vw, 1.05rem);
-    line-height: 1.15;
+    font-size: 0.74rem;
+    line-height: 1.2;
   }
 
   .surface-block {
@@ -1261,8 +1269,8 @@ p {
 }
 
 .study-sheet--tight .study-heading__title {
-  font-size: 0.82rem;
-  line-height: 1.1;
+  font-size: 0.7rem;
+  line-height: 1.15;
 }
 
 .study-sheet--tight .surface-block {

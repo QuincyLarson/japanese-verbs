@@ -3,7 +3,11 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getSectionProgress } from '../lib/curriculumProgress';
 import { getCurriculumSections } from '../lib/curriculum';
 import { getLessonLabel } from '../lib/lessons';
-import { getCompletedSectionIndexFromNavigationState, getSectionStudyPath } from '../lib/routes';
+import {
+  getCompletedSectionIndexFromNavigationState,
+  getFocusSectionIndexFromNavigationState,
+  getSectionStudyPath,
+} from '../lib/routes';
 import { useAppState } from '../app/AppState';
 
 function CheckIcon({ animate = false }: { animate?: boolean }) {
@@ -27,10 +31,30 @@ function CheckIcon({ animate = false }: { animate?: boolean }) {
 
 function SkipIcon() {
   return (
-    <svg aria-hidden="true" className="unit-card__status-icon" viewBox="0 0 24 24">
-      <path d="M5 16c0-5.8 4.6-10 9.5-10S24 10.2 24 16" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2.2" />
-      <path d="M18 16h6v6" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
-      <path d="m24 22-4.8-4.8" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
+    <svg aria-hidden="true" className="unit-card__status-icon unit-card__status-icon--skip" viewBox="0 0 24 24">
+      <path
+        d="M5.5 15.5c0-4.7 3.7-8.5 8.1-8.5 2.3 0 4.5 0.9 6.1 2.4"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.2"
+      />
+      <path
+        d="M16.1 5.3h3.9v3.9"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
+      <path
+        d="m20 5.3-4.7 4.7"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.2"
+      />
     </svg>
   );
 }
@@ -42,6 +66,7 @@ export function OverviewPage() {
   const [celebratingSectionIndex, setCelebratingSectionIndex] = useState<number | null>(null);
   const sectionRefs = useRef<Record<number, HTMLLIElement | null>>({});
   const completedSectionIndex = getCompletedSectionIndexFromNavigationState(location.state);
+  const focusSectionIndex = getFocusSectionIndexFromNavigationState(location.state);
   const sections = useMemo(() => {
     if (catalogStatus !== 'ready') {
       return [];
@@ -126,11 +151,13 @@ export function OverviewPage() {
   }, [navigate, selectedSection]);
 
   useLayoutEffect(() => {
-    if (completedSectionIndex === null || completedSectionIndex < 0) {
+    const targetIndex = completedSectionIndex ?? focusSectionIndex;
+
+    if (targetIndex === null || targetIndex < 0) {
       return;
     }
 
-    const targetSection = sectionRefs.current[completedSectionIndex];
+    const targetSection = sectionRefs.current[targetIndex];
 
     if (!targetSection || typeof window === 'undefined') {
       return;
@@ -145,15 +172,23 @@ export function OverviewPage() {
       left: 0,
       behavior: 'auto',
     });
-    setCelebratingSectionIndex(completedSectionIndex);
+
+    if (completedSectionIndex !== null) {
+      setCelebratingSectionIndex(completedSectionIndex);
+    }
+
     navigate(location.pathname, { replace: true, state: null });
+
+    if (completedSectionIndex === null) {
+      return;
+    }
 
     const timeoutId = window.setTimeout(() => {
       setCelebratingSectionIndex((current) => (current === completedSectionIndex ? null : current));
     }, 1800);
 
     return () => window.clearTimeout(timeoutId);
-  }, [completedSectionIndex, location.pathname, navigate, sections.length]);
+  }, [completedSectionIndex, focusSectionIndex, location.pathname, navigate, sections.length]);
 
   if (catalogStatus !== 'ready') {
     return (

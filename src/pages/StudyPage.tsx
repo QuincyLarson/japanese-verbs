@@ -304,16 +304,22 @@ export function StudyPage() {
       >
         {selectedLessonLabel ? (
           <div className="study-heading">
-            <nav aria-label="Breadcrumb" className="breadcrumb">
+            <nav aria-label="Breadcrumb" className="breadcrumb breadcrumb--title">
               <Link className="breadcrumb__link" state={curriculumLinkState} to="/">
                 Curriculum
               </Link>
               <span aria-hidden="true" className="breadcrumb__separator">
                 &gt;
               </span>
-              <span className="breadcrumb__current">{selectedLessonLabel}:</span>
+              <span className="breadcrumb__current">
+                {selectedLessonTitle ? `${selectedLessonLabel}: ${selectedLessonTitle}` : selectedLessonLabel}
+              </span>
             </nav>
-            {selectedLessonTitle ? <h1 className="study-heading__title">{selectedLessonTitle}</h1> : null}
+            <h1 className="visually-hidden">
+              {selectedLessonTitle
+                ? `Curriculum > ${selectedLessonLabel}: ${selectedLessonTitle}`
+                : `Curriculum > ${selectedLessonLabel}`}
+            </h1>
           </div>
         ) : null}
 
